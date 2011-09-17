@@ -1,0 +1,88 @@
+body {
+    font-family: sans-serif;
+    background: #000;
+    color:#fff;
+}
+
+/* column layout */
+#leftcol {
+    height: 100%;
+    width:50%;
+    float: left;
+    clear:left;
+}
+#rightcol {
+    height: 100%;
+    width:50%;
+    float: right;
+}
+
+/* general style */
+.title {
+    font-size:22px;
+    font-weight:bold;
+    color:#aaa;
+    padding-left:15px;
+    padding-top:5px;
+    padding-bottom:10px;
+}
+div.graybg {
+    background: #444;
+}
+
+/* alerts */
+div.alert {
+    border-radius:5px;
+    -moz-border-radius: 5px;
+    padding:5px 5px 5px 15px;
+    margin: 0 0 5px 0;
+    color:#fff;
+}
+div.alert:hover {
+    background: #555;
+}
+.allgood {
+    font-size:26px;
+}
+.critical {
+    font-size:20px;
+}
+.notification {
+	font-size:14px;
+}
+.acked {
+    font-size:14px;
+}
+
+span.alertname1 {
+    color:lightblue;   
+}
+span.alertname2 {
+    color:#fff;
+}
+span.datetime {
+    color:#fff;
+}
+
+/* state colors */
+span.state2 {
+    color:#FF7256;
+}
+span.state1 {
+    color:yellow;
+}
+span.state0 {
+    color:lime;
+}
+
+
+
+div#statistics {
+    float:right;
+    text-align: right;
+    color:#888;
+    margin-right:15px;
+    padding-top:10px;
+    font-size:12px;
+}
+

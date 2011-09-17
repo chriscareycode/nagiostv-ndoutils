@@ -1,0 +1,8 @@
+<?php
+
+$g_db_host = 'localhost';
+$g_db_name = 'ndoutils';
+$g_db_user = 'ndoutils';
+$g_db_pass = 'cHanGeMe========D';
+
+?>
