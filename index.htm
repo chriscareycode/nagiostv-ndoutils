@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nagios TV Monitor 2.0</title>
+
+<link href="lib/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+<link rel="stylesheet" type="text/css" href="style.css">
+<style type="text/css">
+    body {
+        line-height: normal;        
+        background-color: #000;
+        color:#fff;
+    }
+</style>
+
+<link rel="icon" href="http://admin.pertino.com/image/pertino_logo_ico.png" type="image/x-icon" /> 
+</head>
+<body>
+
+<div class="navbar" style="display:none;">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav">
+                <li>
+                    <img src="http://admin.pertino.com/image/pertino_p.png" alt="Pertino_logo_053112" style="height:30px;position:relative;top:5px;margin-right:4px;" />
+                    <span style="font-size:24px;font-weight:bold;color:white;position:relative;top:11px;">
+                    Nagios Monitor 2.0</span>
+                    
+                </li>
+                <!-- li class="active"><a href="#">Home</a></li>
+                <li><a href="#">Link</a></li>
+                <li><a href="#">Link</a></li -->
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script type="text/x-handlebars" data-template-name="bar-chart"> 
+<div class="wait graybg" style="margin-top:20px;opacity:1;">
+    <div style="position:absolute;font-size:14px;margin-bottom:5px;color:white;">Refresh every 10 seconds</div>
+    <div class="progress" style="margin-bottom:5px;color:#fff;">
+        <div {{bindAttr class="bgColor :bar"}} {{bindAttr style="timerWidth"}}></div>
+    </div>
+    
+</div>
+</script>
+
+<script type="text/x-handlebars" data-template-name="stats"> 
+ 
+ 
+    <div class="environment">
+        {{name}}
+        <span id="current-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
+    </div>
+    
+    <div class="currentTimeDiv">Current Time: <span id="currentTime">00:00:00</span></div>
+    
+    
+    
+    {{#if currentEmpty2}}
+        {{view App.currentOkView}}
+    {{/if}}
+    
+    {{#each App.currentController.current}}
+        {{view App.currentItemView contentBinding="App.currentController"}} 
+    {{/each}}
+    
+    <div id="barAreaCurrent"></div>
+
+    {{#unless acked}}
+    <div class="nagalert graybg" style="display:none;">
+        <div style="font-size:22px;margin-bottom:5px;color:lime;">No ACKed services</div>            
+    </div>    
+    {{/unless}}
+    
+    {{#if App.currentController.acked}}
+    <div class="section" style="display:none;">ACKed</div>
+    {{#each App.currentController.acked}}
+    
+    <div id="acked-{{servicestatus_id}}" class="graybg nagalert" style="display:block;">
+        <span class="datetime">
+        <span style="color:lime;">(</span>{{status_update_time}}<span style="color:lime;">)</span>
+        </span>
+        
+        {{#if name1}}
+        <span class="alertname1">[<a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{name1}}">{{name1}}</a>]</span>
+        {{/if}}
+        {{#if name2}}
+        <span class="alertname2">[<a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{name1}}&service={{name2}}">{{name2}}</a>]</span>
+        {{/if}}
+        
+        <br /><span class="state{{current_state}}">{{output}}</span>
+    </div>
+    
+    {{/each}}
+    {{/if}}
+    
+    <div class="section" style="">Notification History
+        <span id="notifications-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
+    </div>
+
+    {{#unless App.currentController.history}}
+    
+    <div class="nagalert graybg">
+        <div style="text-align:center;font-size:18px;margin-bottom:5px;">No History</div>            
+    </div>
+    
+    {{/unless}}
+    
+    {{#each App.currentController.history}}
+    
+        {{view App.historyItemView contentBinding="App.currentController"}} 
+    
+    {{/each}}
+
+    <div id="container"></div>
+        
+</script>
+
+
+<script type="text/x-handlebars" data-template-name="current-ok"> 
+    <div class="nagalert graybg" style="">
+        <div style="font-size:26px;margin-bottom:5px;color:lime;">  
+        
+           
+    
+               
+            All services are UP
+        </div>            
+    </div>
+</script>
+
+<script type="text/x-handlebars" data-template-name="history-item">  
+
+    {{#if view.firstTimespan}}
+    <div class="largetimespan" style="float:none;margin-left:5px;margin-top:20px;margin-bottom:20px;">
+        <div class="quiet">Quiet for <span>{{minutes_ago}}</span> minutes</div>
+        <div class="quiet" style="font-size:16px;">{{view.stringAgo}}</div>
+    </div>
+    {{/if}}    
+    
+    <div id="history-{{unbound notification_id}}" class="graybg nagalert" style="display:block;font-size:16px;opacity:0.5;">
+        
+        <div class="ago" style="">
+            {{minutes_ago}}
+            <div style="font-size:9px;position:relative;top:-6px;">ago</div>
+        </div>
+        
+        <div class="datetime">
+        <span style="color:lime;">(</span>{{start_time}}<span style="color:lime;">)</span>
+        </div>
+        
+        {{view.stringAgo}} ago<br />
+        
+        {{#if name2}}
+        <span class="alertname2"><a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{name1}}&service={{name2}}">{{name2}}</a></span>
+        {{/if}}
+        
+        on
+        
+        {{#if name1}}
+        <span class="alertname1"><a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{name1}}">{{name1}}</a></span>
+        {{/if}}
+        
+        <div class="state{{unbound state}}">{{output}}</div>
+        
+        <div class="since">{{since}} minutes since previous event</div>
+        
+    </div>
+
+    {{#if view.largeTimespan}}
+
+    <div class="largetimespan" style="float:none;margin-left:5px;margin-top:22px;margin-bottom:20px;">
+        <div class="quiet">Quiet for <span>{{since}}</span> minutes</div>
+    </div>
+    
+    {{/if}}
+    
+</script>
+
+<script type="text/x-handlebars" data-template-name="current-item">  
+    
+    <div id="current-{{unbound servicestatus_id}}" class="graybg nagalert critical" style="display:block;">
+    
+    {{#if view.isSoft}}
+    <div style="float:right;position:relative;" >
+        <div class="timer">
+            <div class="mask"></div>
+        </div>
+    </div>
+    {{else}}
+    <div style="float:right;position:relative;top:-1px;left:2px;display:none;" >
+        <div class="timer-no"></div>
+    </div>
+    {{/if}}
+    
+    
+    {{#if name2}}
+    <span class="alertname2"><a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{unbound name1}}&service={{unbound name2}}">{{name2}}</a></span>
+    {{/if}}
+    on
+    {{#if name1}}
+    <span class="alertname1"><a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{unbound name1}}">{{name1}}</a></span>
+    {{/if}}
+    
+    <br />
+    <span {{bindAttr class="view.currentStateClass"}} style="">
+    {{output}}
+    </span>
+    
+    
+    
+    {{#if view.isSoft}}
+        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} WARN @ {{status_update_time}}</div>
+    {{else}}
+        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} DOWN @ {{status_update_time}}</div>
+    {{/if}}
+    
+    
+    <div>NEXT CHECK @ {{next_check}}</div>
+    
+    
+    
+    
+    </div>
+</script>
+
+
+
+<div class="row-fluid">
+    <div class="span12 padme" id="col1" style="">
+    </div>
+</div>
+
+<div id="container"></div>
+
+<div id="main">
+
+    <div id="jquery-test" class="graybg nagalert" style="text-align:center;width:300px;margin-right:auto;margin-left:auto;padding:10px;">
+        <div style="font-size:24px;">NagiosTV <span style="font-size:14px;">v2.0</span></div>
+        <div style="font-size:18px;">by Christopher Carey<br />
+        http://chriscarey.com</div>
+        
+       
+        <img src="images/emberjs-logo.png" alt="emberjs-logo" style="width:100px;" />
+    </div>
+    
+</div>
+
+<div id="audio"></div>
+
+<script type="text/javascript" >
+ENV = {
+    CP_DEFAULT_CACHEABLE: true,
+    VIEW_PRESERVES_CONTEXT: true,
+    RAISE_ON_DEPRECATION: true
+};
+</script>
+<script type="text/javascript" src="lib/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="lib/ember-0.9.8.1.js"></script>
+<script type="text/javascript" src="lib/bootstrap/js/bootstrap.js"></script>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="main.js"></script>
+
+</body>
+</html>

@@ -1,8 +1,18 @@
 <?php
 
-$g_db_host = 'localhost';
-$g_db_name = 'ndoutils';
-$g_db_user = 'ndoutils';
-$g_db_pass = 'cHanGeMe========D';
+/*******************************************************************************
+ * 
+ * Nagios TV Monitor
+ * by Christopher P Carey 2010-12-09
+ * 
+ * config.php
+ * change these values for your own database. Save the file as 'config.php'
+ *
+ ******************************************************************************/
+ 
+$g_db_host = 'localhost'; // database host
+$g_db_name = 'ndoutils'; // database name
+$g_db_user = 'ndoutils'; // database username
+$g_db_pass = 'cHanGeMe===='; // database password
 
 ?>

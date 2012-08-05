@@ -1,393 +1,544 @@
 /*******************************************************************************
- * main.js
+ * 
+ * Nagios TV Monitor
  * by Christopher P Carey 2010-12-09
+ * 
+ * main.js
+ *
  ******************************************************************************/
 
-var g_temp;
-var g_debug = false;
+
 
 var refreshCurrent = 10; // in seconds
-var refreshAcked = 61; // in seconds
-var refreshNotification = 31; // in seconds
+var refreshAcked = 31; // in seconds
+var refreshNotification = 16; // in seconds
 
-var datePageLoad;
+
+
+
+
 var refreshCount = 0; // counts up each refresh
-var refreshMax = 10000; // maximum times to refresh the page before quitting
-var refreshId = 0; // interval ID of the setTimeout
-var byteTotal = 0;
-
-var lastIdCurrent = 0;
-var g_blnCurrentAllGood = false;
-var lastIdServiceStatus = 0;
-var lastIdNotification = 0;
-var maxCountNotification = 50;
+var maxCountNotification = 30;
 
 
-/*******************************************************************************
- * Display Templates
- ******************************************************************************/
- 
-function displayCurrentItem(arr, divid) {
-
-    var msg = '';
-    
-    msg += '<div id="current-'+arr.servicestatus_id+'" class="graybg alert critical" style="display:none;">'+"\n";
-    msg += '\t<span class="datetime">\n';
-    msg += '\t\t<span style="color:lime;">(</span>'+arr.status_update_time+'<span style="color:lime;">)</span>'+"\n";
-    msg += '\t</span>'+"\n";
-    
-    if (arr.name1) msg += '<span class="alertname1">['+arr.name1+']</span>'+"\n";
-    if (arr.name2) msg += '<span class="alertname2">['+arr.name2+']</span>'+"\n";
-    
-    msg += '\t<span class="state'+arr.current_state+'">'+arr.output+'</span>'+"\n";
-    msg += '</div>'+"\n";
-    
-    $(divid).prepend(msg);
-    
-    // Expand it
-    $('#current-'+ arr.servicestatus_id).slideDown();
-
-}
-
-function displayServiceStatusItem(arr, divid) {
-
-    var msg = '';
-    
-    if (arr.notifications_enabled == 0 || arr.problem_has_been_acknowledged == 1) {
-        msg += '<div id="ss'+ arr.servicestatus_id +'" class="graybg alert acked" style="display:block;opacity:0.7">';
-    } else {
-        msg += '<div id="ss'+ arr.servicestatus_id +'" class="graybg alert acked" style="display:block;">';
-    }
-    if (arr.problem_has_been_acknowledged == 1) {
-        msg += '<span class="ack">ACK\'ed by Bob Dobbs</span>';
-    }
-    if (arr.notifications_enabled == 0){
-        msg += '<span class="notifications-disabled">Notification Disabled</span>';
-    }
-    
-    msg += '\t<span class="datetime">'+"\n";
-    msg += '\t\t<span style="color:lime;">(</span>'+arr.status_update_time+'<span style="color:lime;">)</span>'+"\n";
-    msg += '\t</span>';
-    
-    if (arr.name1) msg += '<span class="alertname1">['+arr.name1+']</span>'+"\n";
-    if (arr.name2) msg += '<span class="alertname2">['+arr.name2+']</span>'+"\n";
-    
-    msg += '\t<span class="state'+arr.current_state+'">'+arr.output+'</span>'+"\n";
-    msg += '</div>'+"\n";
-    
-    $(divid).append(msg);
-    
-    // Expand it
-    //$('#ss'+ arr.servicestatus_id).fadeIn('normal');
-    
-}
-
-function displayNotificationItem(arr, divid) {
-
-    var msg = '';
-    msg += '<div id="notification-'+arr.notification_id+'" class="graybg alert notification" style="display:none;">'+"\n";
-    
-    msg += '\t<span class="datetime">'+"\n";
-    msg += '\t\t<span style="color:lime;">(</span>'+arr.start_time+'<span style="color:lime;">)</span>'+"\n";
-    msg += '\t</span>';
-    
-    if (arr.name1) {
-        msg += '<span class="alertname1">['+arr.name1+']</span>'+"\n";
-    }
-    if (arr.name2) {
-        msg += '<span class="alertname2">['+arr.name2+']</span>'+"\n";
-    }
-    if (arr.output.indexOf('CRITICAL') > -1) arr.state = 2;// a hack to make criticals red
-    
-    msg += '\t<span class="state'+arr.state+'">'+arr.output+'</span>'+"\n";
-    msg += '</div>'+"\n";
-    
-    $(divid).prepend(msg);
-    
-    // Expand it
-    $('#notification-'+ arr.notification_id).slideDown('normal');
-    
-    // Remove childrent if the count is higher than allowed
-    // (this probably only needs an IF and not a WHILE)
-    
-    if ($('#notifications > div').size() > maxCountNotification) {
-    
-        $('#notifications > div:last').slideUp('normal', function() {
-            $(this).remove();
-        });
-        
-    }
-                
-}
-
-
-function findInArray(p_word, p_array) {
-
-    var ret = false;
-    if (p_array.length != 0) {
-        for (var i=0;i<p_array.length; i++) {
-            if (p_array[i].servicestatus_id == p_word) ret = true;
-        }
-    }
-    return ret;                  
-}
-
-
-/*******************************************************************************
- * updatePage
- ******************************************************************************/
-
-function updateStats() {
-
-    // stop the refresh eventually (just a safety measure)
-    if (refreshCount++ >= refreshMax) {
-        clearTimeout(refreshIdCurrent);
-        clearTimeout(refreshIdAcked);
-        clearTimeout(refreshIdNotification);
-        $('#stats-refresh').html('');
-        $('#lastupdate').html('Auto-Update disabled. Refresh to start again.');
-        return false;
-    }
-    
-    
-    // update info on the page
-    //$('#stats-refresh').html('Refreshing every '+refreshCurrent+' seconds. '+refreshCount+' of '+refreshMax+' ');
-    $('#stats-refresh').html('Refreshing every '+refreshCurrent+' seconds. ACK\'ed Refreshing every '+refreshAcked+' seconds. Notifications refreshing every '+refreshNotification+' seconds. ['+refreshCount+'/'+refreshMax+'] ');
-    
-    // show some debug info
-    doConsole('lastIdCurrent:'+ lastIdCurrent);
-    doConsole('lastIdServiceStatus:'+ lastIdServiceStatus);
-    doConsole('lastIdNotification:'+ lastIdNotification);
-    
-}
-function updateCurrent() {
-    
-    updateStats();
-    
-    $('#current-spinner').show();
-    
-    // request the page
-    $.ajax({
-        type: "POST",
-        url: "api.php",
-        data: "func=current",
-        success: function(msg){
-            
-            $('#current-spinner').fadeOut('slow');
-            
-            if (msg) {
-            
-                updateByteCount(msg);
-                        
-                // Convert the return data from JSON to JavaScript Array
-                var myobj = eval('(' + msg + ')');
-                
-                // Get the last id from the returned data
-                if (myobj.length > 0) lastIdCurrent = myobj[0].servicestatus_id;
-                                    
-                // Display 'All is OK' since we have no current items
-                if (myobj.length == 0) {
-                
-                    // only do this if we are changing state (to avoid flicker)
-                    //if (!g_blnCurrentAllGood) {
-                    if ($('#current-allgood').length == 0) {
-                        // remove any children items which used to be here
-                        $("#current").children().each(function() {
-                            var myid = $(this)[0].id.substring($(this)[0].id.indexOf('-')+1);
-                            doConsole('All Good. Sliding up child ' + $(this)[0].id);
-                            $('#current-'+myid).slideUp('normal', function() { $(this).remove(); }); 
-                        });
-                        
-                        // show the all good message
-                        var allgood = '<div id="current-allgood" class="graybg alert allgood" style="display:none;">';
-                        allgood += '<span style="color:lime;">All services are UP</span>';
-                        allgood += '</div>';
-                        $('#current').prepend(allgood);
-                        $('#current-allgood').slideDown('normal');
-                        g_blnCurrentAllGood = true;
-                    }
-                    
-                } else {
-                
-                    // we have failure. Hide the "All Good" message
-                    if (g_blnCurrentAllGood == true) $('#current-allgood').slideUp();
-                    g_blnCurrentAllGood = false;
-                    if (myobj.length != 0) {
-                        for (var i=myobj.length-1; i>=0; i--) {                            
-                            if ($('#current-'+myobj[i].servicestatus_id).length == 0) {
-                                displayCurrentItem(myobj[i], '#current');     
-                            }
-                        }
-                    }
-                    
-                    // kill any items on the page which were not returned
-                    $("#current").children().each(function() {
-                        var myid = $(this)[0].id.substring($(this)[0].id.indexOf('-')+1); 
-                        if (findInArray(myid, myobj)) {
-                            doConsole('div is still in array. leaving alone ' + $(this)[0].id);     
-                        } else {
-                            doConsole('not in array. killing div ' + $(this)[0].id);
-                            $(this).slideUp('normal', function() {
-                                $(this).remove();
-                            });
-                        }
-                    });                
-                }
-            }
-        }
-    });
-    
-}
-
-function updateAcked() { 
-    
-    $('#acked-spinner').show();
-    
-    $.ajax({
-        type: "POST",
-        url: "api.php",
-        data: "func=servicestatus&lastid="+lastIdNotification,
-        success: function(msg){
-            
-            $('#acked-spinner').fadeOut('slow');
-                    
-            // Convert the return data from JSON to JavaScript Array
-            var myobj = eval('(' + msg + ')');
-            
-            // Get the last id from the returned data
-            if (myobj.length > 0) lastIdServiceStatus = myobj[0].servicestatus_id;
-            
-            if (myobj.length == 0) {
-            
-                if ($('#acked-allgood').length == 0) {
-                    // show the all good message
-                    var allgood = '<div id="acked-allgood" class="graybg alert allgood" style="display:none;">';
-                    allgood += '<span style="color:grey;">No services ACK\'ed</span>';
-                    allgood += '</div>';
-                    $('#acked').html(allgood);
-                    $('#acked-allgood').slideDown('normal');
-                    //g_blnCurrentAllGood = true;
-                }
-                        
-            }
-                        
-            // Loop through all returned data and write to screen
-            for (var i=0; i<myobj.length; i++) {
-                displayServiceStatusItem(myobj[i], '#acked');      
-            }
-        }
-    });
-    
-}
-
-function updateNotification() {
-    
-    $('#notifications-spinner').show();
-    
-    $.ajax({
-        type: "POST",
-        url: "api.php",
-        data: "func=notifications&maxcount="+maxCountNotification+"&lastid="+lastIdNotification,
-        success: function(msg){
-            
-            $('#notifications-spinner').hide();
-            
-            if (msg) {
-            
-                updateByteCount(msg);
-            
-                // Convert the return data from JSON to JavaScript Array
-                var myobj = eval('(' + msg + ')');
-                
-                // Get the last id from the returned data
-                if (myobj.length > 0) lastIdNotification = myobj[0].notification_id;
-                                
-                // Loop through all returned data and write to screen
-                if (myobj.length != 0) {
-                    for (var i=myobj.length-1; i>=0; i--) {
-                        // only add this item if it does not already exist on the page
-                        if ($('#notification-'+myobj[i].notification_id).length == 0) {
-                            displayNotificationItem(myobj[i], '#notifications');
-                        }
-                         
-                    }
-                }
-            }
-        }
-    });
-        
-}
-
-/*******************************************************************************
- * Various Functions
- ******************************************************************************/
-
-function updateByteCount(msg) {
-
-    // todo: split this into two functions one for time, one for bytes
-    var byteAmount = 0;
-    var now = new Date();
-    var hours = now.getHours(); if (hours < 10) hours = '0'+hours;
-    var minutes = now.getMinutes(); if (minutes < 10) minutes = '0'+minutes;
-    var seconds = now.getSeconds(); if (seconds < 10) seconds = '0'+seconds;
-    
-    byteAmount = unescape(encodeURIComponent(msg)).length;
-    byteTotal += byteAmount;
-    
-    $('#pageloaded').html('Page Loaded: ' + datePageLoad);
-    $('#lastupdate').html('Last Update: '+ hours +':'+ minutes +':'+ seconds);
-    $('#bytetotal').html('Data Xfer: ' + showBytes(byteTotal) + ' ');
-}
-
-function showBytes(bytes) {
-    var temp;
-    if (bytes > 1000000000) {
-        temp = Math.floor(bytes / 1000000000) + ' GB';
-    } else if (bytes > 1000000) {
-        temp = Math.floor(bytes / 1000000) + ' MB'; 
-    } else if (bytes > 1000) {
-        temp = Math.floor(bytes / 1000) + ' KB';    
-    } else {
-        temp = bytes + ' bytes';
-    }
-    return temp;
-}
-
-function toggleVisibility(id) {
-    $('#'+id).toggle();
-}
-
-function doConsole(msg) {
-    if (g_debug && window.console && window.console.firebug) console.info(msg);  
-}
 
 /*******************************************************************************
  * Document Ready
  ******************************************************************************/
- 
+
+function emberStart() {
+
+    window.App = Ember.Application.create();  
+    
+    App.Item = Em.Object.extend();
+    
+    App.log = function(msg){
+       if (window.console) console.info(msg);
+    };
+        
+    App.currentController = Ember.ArrayController.create({
+
+        current: [],
+        acked: [],
+        history: [],
+        
+        
+        lastIdNotification: 0,
+        
+        startCountdown: function(obj) {
+
+            var count = refreshCurrent - 1;
+            var origcount = refreshCurrent;
+            
+            clearInterval(obj.countdown);
+            
+            obj.set('timerPercent','100');
+            obj.countdown = setInterval(function(){
+            
+                var pct = ((count-1) / origcount)*100;
+                obj.set('timerPercent',pct);
+                if (count == 0) {
+                    clearInterval(obj.countdown);
+                }
+                count--;
+            }, 1000);
+        },
+        
+        updateCurrent: function() {
+            
+            var that = this;
+            
+            $('#current-spinner').show();
+            
+            // request the page
+            $.ajax({
+                type: "GET",
+                url: "api.php",
+                data: "func=current",
+                dataType: "json",
+                success: function(data){
+                    
+                    $('#current-spinner').fadeOut('slow');
+                    
+                    if (data) {
+                    
+                        var current = App.currentController.get('current');
+                        
+                        if (typeof(current) === "undefined") current = [];
+                        
+                        for(var j=0;j<current.length;j++) {
+                            current[j].set('found', 0);
+                        }
+                        
+                        // We can't just blindly replace all the data. Thats sloppy as hell yo
+                        for(var i=0;i<data.length;i++) {
+                        
+                            // search for a existing record
+                            var found = false;
+                            for(var j=0;j<current.length;j++) {
+                                if (current[j].servicestatus_id === data[i].servicestatus_id) {
+                                    current[j].set('state_type', data[i].state_type);
+                                    current[j].set('current_state', data[i].current_state);
+                                    current[j].set('next_check', data[i].next_check);
+                                    current[j].set('output', data[i].output);
+                                    current[j].set('found', 1);
+                                    found = true;
+                                }
+                            }                
+                            if (!found) {
+                                // item was returned and it was not found. lets add it into the array of items
+                                App.log('updateCurrent() new item');
+                                App.log(data[i]);
+                                
+                                current.pushObject( App.Item.create(data[i]) );
+                            }
+                        }
+                        
+                        // todo: backwards
+                        // erase any items which were not returned
+                        if (typeof(current) !== "undefined") {
+                            for(var j=current.length-1;j>=0;j--) {
+                                App.log('updateCurrent() Searching index '+j+' - found:'+current[j].get('found'));
+                            
+                                if (current[j].get('found') === 0) {
+                                    App.log('updateCurrent() Erasing index '+j+ 'current length is '+current.length);
+                                    
+                                    $('#current-'+current[j].servicestatus_id).slideUp('slow', function(){
+                                        
+                                        try {
+                                            current.removeAt(j);
+                                        } catch(err) {
+                                            App.log('remove Error:'+err);
+                                            App.log(current);
+                                        }
+                                    });
+                                } else {
+                                    App.log('updateCurrent() Item found at index '+j+'. Nothing to erase from current.');
+                                }
+                            }
+                        }
+                        
+                        if (data.length === 0) {
+                            // stop any timers on any of the objects before killing them
+                            App.currentController.set('current', []);
+                            App.mainView.set('currentEmpty', true);
+                            App.mainView.set('currentCount', 0);
+                            App.log('updateCurrent() Return data is empty. Clearing current.');
+                        } else {
+                            App.mainView.set('currentEmpty', false);
+                            App.mainView.set('currentCount', data.length);
+                        }
+                        
+                        // replace some of the items
+                        App.currentController.set('current', current);
+                                 
+                        that.startCountdown(App.mainView);
+                    }
+                }
+            });
+        },
+        
+        updateAcked: function() {
+                
+            //$('#current-spinner').show();
+            
+            // request the page
+            $.ajax({
+                type: "GET",
+                url: "api.php",
+                data: "func=acked",
+                dataType: "json",
+                success: function(data){
+        
+                    //$('#current-spinner').fadeOut('slow');
+                    
+                    if (data) {
+                        App.currentController.set('acked', data);
+                    }
+                }
+            });
+        },
+        
+        updateHistory: function() {
+            
+            $('#notifications-spinner').show();
+            
+            $.ajax({
+                type: "GET",
+                url: "api.php",
+                data: "func=history&maxcount="+maxCountNotification+"&lastid="+App.currentController.lastIdNotification,
+                dataType: "json",
+                success: function(data){
+                    
+                    $('#notifications-spinner').fadeOut('slow');
+                    
+                    if (data) {
+                                    
+                        if (data.length > 0) App.currentController.lastIdNotification = data[0].notification_id;
+                                      
+                        // Loop through all returned data and write to screen
+                        if (data.length != 0) {
+                                           
+                            var oldhistoryarray = App.currentController.get('history');
+                            oldhistoryarray.reverse();  
+                            
+                            var temphistoryarray = Ember.A();
+                            
+                            for (var i=data.length-1; i>=0; i--) {
+                                // only add this item if it does not already exist on the page
+                                if ($('#notification-'+data[i].notification_id).length == 0) {
+                                    
+                                    //* give us the minutes since the previous history element */
+                                    // subtract start_time from current time
+                                    var date1;
+                                    var date2 = new Date(data[i].start_time);
+                                    if (oldhistoryarray.length > 0) {
+                                    
+                                        date1 = new Date(oldhistoryarray[oldhistoryarray.length-1].start_time);
+                                        App.log('updateHistory() oldhistoryarray got date '+date1);
+                                        
+                                    } else if(temphistoryarray.length > 0) {
+                                    
+                                        date1 = new Date(temphistoryarray[temphistoryarray.length-1].start_time);
+                                        App.log('updateHistory() temphistory got date '+date1);
+                                        
+                                    } else {
+                                        // FIXME: last one on the page falls into this
+                                        App.log('updateHistory() noarrays');
+                                        date1 = new Date();
+                                    }
+                                    var diff = date2.getTime() - date1.getTime();
+                                    diff = diff/(60*1000);
+                                    diff = diff.toFixed(0);
+                                    
+                                    // set it
+                                    data[i].since = diff;
+                                    //* give us the minutes since the previous history element */
+                                    
+                                    temphistoryarray.pushObject(App.Item.create(data[i]));
+                                }
+                            }
+                            
+                            var newhistoryarray = oldhistoryarray.concat(temphistoryarray);
+                            newhistoryarray.reverse(); 
+                            
+                            for(var j=0;j<newhistoryarray.length;j++) {
+                                newhistoryarray[j].set('first', false);
+                            }
+                            newhistoryarray[0].set('first', true);
+                                                
+                            App.currentController.set('history', newhistoryarray);  // need to appendChild
+                        }
+                    }
+                    
+                    // update history even if no new data
+                    App.currentController.updateHistoryAgo();
+                }
+            });   
+        },
+        
+        
+        
+        
+        
+        
+        
+        
+        // For each history item, update ago, seconds_ago, and minutes_ago values
+        updateHistoryAgo: function() {
+        
+            var history = App.currentController.get('history');
+            
+            // for each item in the history, update the 'ago' value
+            for (var h=history.length-1; h>=0; h--) {
+                // subtract start_time from current time
+                var date1 = new Date(history[h].start_time);
+                var date2 = new Date();
+                
+                var diff = date2.getTime() - date1.getTime();
+                var seconds = (diff/1000).toFixed(0);
+                var minutes = (diff/(60*1000)).toFixed(0);
+                diff = diff/(60*1000);
+                diff = diff.toFixed(0);
+                
+                history[h].set('ago', diff);
+                history[h].set('seconds_ago', seconds);
+                history[h].set('minutes_ago', minutes);
+            }
+        }
+        
+        
+        
+    });
+
+    App.mainView = Ember.View.create({
+        
+        
+                
+        didInsertElement: function() {
+            //App.log('mainView didInsertElement');
+            //App.log(this.$());
+        },
+        
+        currentEmpty: true,
+        currentCount: 0,
+        
+        
+        currentEmpty2: function() {
+            App.log('currentEmpty2() '+App.currentController.current.length);
+            if (App.currentController.current.length > 0) {
+                return false;
+            } else {
+                return true;
+            }
+        }.property("App.currentController.current"),
+        
+        templateName: 'stats',
+        //name: "No Name",
+        totalGateways: -1,
+        
+        timerPercent:100,
+        timerWidth: function() {
+            return "width:"+this.timerPercent+"%";
+        }.property("timerPercent"),
+        
+        
+       
+        
+        didInsertElement: function() {
+            if (servername) {
+                //App.log('settingname');
+                this.set('name', servername);
+            }
+        }
+    });
+    App.mainView.appendTo('#col1');
+    
+    
+    App.barCurrent = Ember.View.create({
+        //content: [],
+        //current: [],
+        //acked: [],
+        //history: [],
+        templateName: 'bar-chart',
+        name: "Nagios Debian",
+        totalGateways: -1,
+        
+        timerPercent:100,
+        timerWidth: function() {
+            return "width:"+App.mainView.get('timerPercent')+"%";
+        }.property("App.mainView.timerPercent"),
+        
+        bgColor: function() {
+        
+            return "bggreen";
+            //return "bgyellow";
+            //return "bgred";
+        }.property("App.currentController.current")
+    });
+    App.barCurrent.appendTo('#barAreaCurrent');
+    
+       
+    App.currentOkView = Ember.View.extend({
+       tagName: 'div',
+        classNames: ['displayNone'],
+        templateName: 'current-ok',
+        didInsertElement: function() { 
+            this.$().slideDown('slow');
+        }
+    });
+    
+    App.historyItemView = Ember.View.extend({
+
+        tagName: 'div',
+        classNames: ['displayNone'],
+        templateName: 'history-item',
+        
+        stringAgo: function() {
+        
+            var content = this.bindingContext;
+            var seconds = content.seconds_ago;
+            
+            var numdays = Math.floor(seconds / 86400);
+            var numhours = Math.floor((seconds % 86400) / 3600);
+            var numminutes = Math.floor(((seconds % 86400) % 3600) / 60);
+            var numseconds = ((seconds % 86400) % 3600) % 60;
+            
+            return numdays + " days " + numhours + " hours " + numminutes + " minutes " + numseconds + " seconds";
+
+        }.property("this.bindingContext.ago"),
+        
+        firstTimespan: function() {
+        
+            var content = this.bindingContext;
+            
+            //App.log('firstTimespan');
+            //App.log(content);
+            
+            //var position = jQuery.inArray(this, content);
+            //App.log(position);
+            
+            if (content.first) {
+                return true;
+            } else {
+                return false;
+            }
+        }.property("this.bindingContext.first"),
+        
+        largeTimespan: function() {
+        
+            var content = this.bindingContext;
+            
+            //App.log('largeTimespan');
+            //App.log(content);
+            
+            if (content.since > 30) {
+                return true;
+            } else {
+                return false;
+            }
+        }.property("this.bindingContext.since"),
+        
+        didInsertElement: function() {
+            this.$().slideDown('slow');
+        }
+        
+    });
+    
+    App.currentItemView = Ember.View.extend({
+
+        tagName: 'div',
+        classNames: ['displayNone'],
+        templateName: 'current-item',
+
+        click: function() {
+            App.log('currentItemView() click()');
+        },
+                
+        currentStateClass: function() {
+          
+            var content = this.bindingContext;
+
+            var current_state = content.current_state;
+            
+            App.log('currentItemView() currentStateClass() current_state '+current_state);
+            
+            if (current_state === "1") {
+                return "state1";
+            } else if(current_state === "2") {
+                return "state2";
+            } else {
+                return "state";
+            }
+            
+        }.property('this.bindingContext.current_state'),
+        
+        stateTypeName: function() {
+        
+            var content = this.bindingContext;
+            
+            App.log('currentItemView() stateTypeName state_type '+content.state_type);
+               
+            if (content.state_type === "0") {
+                return "SOFT";
+            } else if(content.state_type === "1") {
+                return "HARD";
+            } else {
+                return "UNKNOWN";
+            }
+            
+        }.property('this.bindingContext.state_type'),
+        
+        isSoft: function() {
+        
+            var content = this.bindingContext;
+         
+            App.log('currentItemView() isSoft state_type '+content.state_type);
+            
+            if (content.state_type === "0") {
+                return true;
+            } else if(content.state_type === "1") {
+                return false;
+            } else {
+                return false;
+            }
+            
+        }.property('this.bindingContext.state_type'),
+        
+        didInsertElement: function() {
+            
+            this.$().slideDown('slow');
+        }
+    });
+}
+
+function updateTime() {
+
+    // TODO: perform this with a timestamp sent down from the server
+    var now = new Date();
+    var hours = now.getHours(); if (hours < 10) hours = '0'+hours;
+    var minutes = now.getMinutes(); if (minutes < 10) minutes = '0'+minutes;
+    var seconds = now.getSeconds(); if (seconds < 10) seconds = '0'+seconds;
+    //datePageLoad = hours +':'+ minutes +':'+ seconds;
+    var str = hours + ':' + minutes + ':' + seconds;
+    $('#currentTime').html(str);
+}
+
 $(document).ready(function(){
 
+    
+
+    
     // This hides the jQuery warning
     $('#jquery-test').hide();
+    //return;
 
-    doConsole('Welcome to Nagios Stats.');
-    doConsole('Current refresh is set to '+refreshCurrent+' seconds');
     
+
+    
+    /*
     var now = new Date();
     var hours = now.getHours(); if (hours < 10) hours = '0'+hours;
     var minutes = now.getMinutes(); if (minutes < 10) minutes = '0'+minutes;
     var seconds = now.getSeconds(); if (seconds < 10) seconds = '0'+seconds;
     datePageLoad = hours +':'+ minutes +':'+ seconds;
+    */
     
+    emberStart();
     
-    // Update current Now
-    updateCurrent();
-    updateAcked();
-    updateNotification();
-
-    // Update page every n seconds
-    refreshIdCurrent = setInterval("updateCurrent()", refreshCurrent * 1000);
-    refreshIdAcked = setInterval("updateAcked()", refreshAcked * 1000);
-    refreshIdNotification = setInterval("updateNotification()", refreshNotification * 1000);
+    App.log('Welcome to Nagios Stats.');
+    App.log('Current refresh is set to '+refreshCurrent+' seconds');
+    App.log('Acked refresh is set to '+refreshAcked+' seconds');
+    App.log('History refresh is set to '+refreshNotification+' seconds');
     
+    App.currentController.updateCurrent(); // Update current Now
+    setInterval("App.currentController.updateCurrent()", refreshCurrent * 1000); // Update page every n seconds
+    
+    App.currentController.updateAcked();
+    setInterval("App.currentController.updateAcked()", refreshAcked * 1000);
+    
+    App.currentController.updateHistory();
+    setInterval("App.currentController.updateHistory()", refreshNotification * 1000);
+    
+    setInterval("updateTime()", 1000);
 });

@@ -9,8 +9,11 @@
 
     // Catch
     $func = ''; if (isset($_POST['func'])) $func = $_POST['func'];
+    if (isset($_GET['func'])) $func = $_GET['func']; //disable me after debug
     $lastid = ''; if (isset($_POST['lastid'])) $lastid = $_POST['lastid'];
-    $maxcount = '500'; if (isset($_POST['maxcount'])) $maxcount = $_POST['maxcount'];
+    if (isset($_GET['lastid'])) $lastid = $_GET['lastid'];
+    $maxcount = '50'; if (isset($_POST['maxcount'])) $maxcount = $_POST['maxcount'];
+    if (isset($_GET['maxcount'])) $maxcount = $_GET['maxcount'];
 
     // Start PHP Session
 	session_start();
@@ -28,7 +31,7 @@
             $sql .= "LIMIT 500;";
             break;
             
-        case "servicestatus":
+        case "acked":
             
             $sql = "SELECT * FROM nagios_servicestatus s  ";
             $sql .= "INNER JOIN nagios_objects o ON s.service_object_id=o.object_id ";
@@ -39,7 +42,7 @@
             $sql .= "DESC LIMIT 500;";
 	       break;
 	       
-	   case "notifications":
+	   case "history":
 	   
 	       $sql = "SELECT n.*, o.name1, o.name2 FROM nagios_notifications n ";
 	       $sql .= "INNER JOIN nagios_objects o ON n.object_id=o.object_id ";
