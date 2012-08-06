@@ -251,12 +251,12 @@ div#statistics {
     -webkit-animation: mask 60s steps(160, start) 1;
     -webkit-transform-origin: 100% 50%;
 }
-.timer @-webkit-keyframes time {
+@-webkit-keyframes time {
     100% { 
         -webkit-transform: rotate(360deg);
     }
 }
-.timer @-webkit-keyframes mask {
+@-webkit-keyframes mask {
     0% {
         background: lime; /* Background colour */
         -webkit-transform: rotate(0deg);

@@ -42,6 +42,7 @@ function emberStart() {
         acked: [],
         history: [],
         
+        currentDisconnected: true,
         
         lastIdNotification: 0,
         
@@ -76,7 +77,13 @@ function emberStart() {
                 url: "api.php",
                 data: "func=current",
                 dataType: "json",
+                timeout: 5000,
+                error: function(data) {
+                    that.set('currentDisconnected', true);
+                },
                 success: function(data){
+                    
+                    that.set('currentDisconnected', false);
                     
                     $('#current-spinner').fadeOut('slow');
                     
@@ -138,16 +145,7 @@ function emberStart() {
                             }
                         }
                         
-                        if (data.length === 0) {
-                            // stop any timers on any of the objects before killing them
-                            App.currentController.set('current', []);
-                            App.mainView.set('currentEmpty', true);
-                            App.mainView.set('currentCount', 0);
-                            App.log('updateCurrent() Return data is empty. Clearing current.');
-                        } else {
-                            App.mainView.set('currentEmpty', false);
-                            App.mainView.set('currentCount', data.length);
-                        }
+                        
                         
                         // replace some of the items
                         App.currentController.set('current', current);
@@ -293,25 +291,29 @@ function emberStart() {
 
     App.mainView = Ember.View.create({
         
+        //currentDisconnected: true,
         
-                
+        currentDisconnected: function() {
+            //App.log('currentDisconnected() '+App.currentController.current.length);
+            return App.currentController.currentDisconnected;
+        }.property("App.currentController.currentDisconnected"),
+           
         didInsertElement: function() {
             //App.log('mainView didInsertElement');
             //App.log(this.$());
         },
         
-        currentEmpty: true,
-        currentCount: 0,
         
         
-        currentEmpty2: function() {
-            App.log('currentEmpty2() '+App.currentController.current.length);
+        
+        currentEmpty: function() {
+            App.log('currentEmpty() '+App.currentController.current.length);
             if (App.currentController.current.length > 0) {
                 return false;
             } else {
                 return true;
             }
-        }.property("App.currentController.current"),
+        }.property("App.currentController.current.length"),
         
         templateName: 'stats',
         //name: "No Name",
@@ -363,6 +365,15 @@ function emberStart() {
        tagName: 'div',
         classNames: ['displayNone'],
         templateName: 'current-ok',
+        didInsertElement: function() { 
+            this.$().slideDown('slow');
+        }
+    });
+    
+    App.currentDisconnectedView = Ember.View.extend({
+       tagName: 'div',
+        classNames: ['displayNone'],
+        templateName: 'current-disconnected',
         didInsertElement: function() { 
             this.$().slideDown('slow');
         }

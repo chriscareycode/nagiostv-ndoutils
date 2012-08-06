@@ -61,9 +61,11 @@
     
     <div class="currentTimeDiv">Current Time: <span id="currentTime">00:00:00</span></div>
     
+    {{#if currentDisconnected}}
+        {{view App.currentDisconnectedView}}
+    {{/if}}
     
-    
-    {{#if currentEmpty2}}
+    {{#if currentEmpty}}
         {{view App.currentOkView}}
     {{/if}}
     
@@ -126,12 +128,16 @@
 
 <script type="text/x-handlebars" data-template-name="current-ok"> 
     <div class="nagalert graybg" style="">
-        <div style="font-size:26px;margin-bottom:5px;color:lime;">  
-        
-           
-    
-               
+        <div style="font-size:26px;margin-bottom:5px;color:lime;"> 
             All services are UP
+        </div>            
+    </div>
+</script>
+
+<script type="text/x-handlebars" data-template-name="current-disconnected"> 
+    <div class="nagalert graybg" style="">
+        <div style="font-size:26px;margin-bottom:5px;color:brown;"> 
+            Disconnected From Server
         </div>            
     </div>
 </script>
