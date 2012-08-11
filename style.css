@@ -33,7 +33,12 @@ a:hover {
     margin-left:5px;
 }
 
-.currentTimeDiv {
+.remoteTimeDiv {
+    margin-left:5px;
+    margin-bottom:0px;
+    font-size:20px;
+}
+.localTimeDiv {
     margin-left:5px;
     margin-bottom:9px;
     font-size:20px;

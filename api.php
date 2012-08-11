@@ -65,10 +65,20 @@
 	if ($sql) {
     	$result = $my_db->query($sql);
         if ($result) {
-            $nag = array();
-            while ($row = mysql_fetch_array($result)) array_push($nag, $row);
+            $json_array = array();
+            $result_array = array();
+            // add a time stamp to this array
+            array_push($json_array, array('stamp'=> time() ));
+            
+            // push all the results down into a json string
+            while ($row = mysql_fetch_array($result)) {
+            
+                array_push($result_array, $row);
+            }
             mysql_free_result($result);
-            print json_encode($nag);
+            
+            array_push($json_array, array('result'=>$result_array));
+            print json_encode($json_array);
         }
 	} else {
 	   $fail = array('OK'=>0, 'ERROR'=>'No SQL');

@@ -2,25 +2,17 @@
  * 
  * Nagios TV Monitor
  * by Christopher P Carey 2010-12-09
+ * Last Modified Aug 11 2012
  * 
  * main.js
  *
  ******************************************************************************/
 
-
-
 var refreshCurrent = 10; // in seconds
 var refreshAcked = 31; // in seconds
 var refreshNotification = 16; // in seconds
 
-
-
-
-
-var refreshCount = 0; // counts up each refresh
 var maxCountNotification = 30;
-
-
 
 /*******************************************************************************
  * Document Ready
@@ -88,26 +80,49 @@ function emberStart() {
                     $('#current-spinner').fadeOut('slow');
                     
                     if (data) {
+                        
+                        var metadata = data[0];
+                        var resultdata = data[1]["result"];
+                        
+                        if (!resultdata) {
+                            return;
+                        }
+                        
+                        // If a timestamp was sent down in the metadata, update the remote clock display
+                        if (metadata["stamp"]) {
+                            var remotedate = new Date(0);
+                            remotedate.setUTCSeconds(metadata["stamp"]);
+                            $('#remoteTime').html(remotedate.toString());
+                            
+                            var now = new Date();
+                            var diff = now.getHours() - remotedate.getHours();
+                            $('#differenceTime').html(diff.toString());
+                        }
                     
+                        // grab the current list of items
                         var current = App.currentController.get('current');
                         
-                        if (typeof(current) === "undefined") current = [];
+                        // create an ember array if one does not exist
+                        if (typeof(current) === "undefined") current = Ember.A();
                         
+                        // set the found bit on each item to 0. we will check for this bit later
+                        // to compare the existing list of items against the one the server sends down
                         for(var j=0;j<current.length;j++) {
                             current[j].set('found', 0);
                         }
                         
                         // We can't just blindly replace all the data. Thats sloppy as hell yo
-                        for(var i=0;i<data.length;i++) {
+                        // loop through the returned data and take a look at what we've got
+                        for(var i=0;i<resultdata.length;i++) {
                         
                             // search for a existing record
                             var found = false;
                             for(var j=0;j<current.length;j++) {
-                                if (current[j].servicestatus_id === data[i].servicestatus_id) {
-                                    current[j].set('state_type', data[i].state_type);
-                                    current[j].set('current_state', data[i].current_state);
-                                    current[j].set('next_check', data[i].next_check);
-                                    current[j].set('output', data[i].output);
+                                if (current[j].servicestatus_id === resultdata[i].servicestatus_id) {
+                                    current[j].set('state_type', resultdata[i].state_type);
+                                    current[j].set('current_state', resultdata[i].current_state);
+                                    current[j].set('next_check', resultdata[i].next_check);
+                                    current[j].set('output', resultdata[i].output);
                                     current[j].set('found', 1);
                                     found = true;
                                 }
@@ -115,13 +130,13 @@ function emberStart() {
                             if (!found) {
                                 // item was returned and it was not found. lets add it into the array of items
                                 App.log('updateCurrent() new item');
-                                App.log(data[i]);
+                                App.log(resultdata[i]);
                                 
-                                current.pushObject( App.Item.create(data[i]) );
+                                // add this new item into the current array
+                                current.pushObject( App.Item.create(resultdata[i]) );
                             }
                         }
                         
-                        // todo: backwards
                         // erase any items which were not returned
                         if (typeof(current) !== "undefined") {
                             for(var j=current.length-1;j>=0;j--) {
@@ -147,9 +162,12 @@ function emberStart() {
                         
                         
                         
-                        // replace some of the items
+                        // set the new current array back into the controller
+                        //App.log('current set');
+                        //App.log(typeof(current));
                         App.currentController.set('current', current);
-                                 
+                        
+                        // Kick off the countdown again (which runs the bar chart and/or any other animations)        
                         that.startCountdown(App.mainView);
                     }
                 }
@@ -157,7 +175,9 @@ function emberStart() {
         },
         
         updateAcked: function() {
-                
+            
+            //TODO: fix ACKed. Its broken right now.
+            
             //$('#current-spinner').show();
             
             // request the page
@@ -171,7 +191,16 @@ function emberStart() {
                     //$('#current-spinner').fadeOut('slow');
                     
                     if (data) {
-                        App.currentController.set('acked', data);
+                    
+                        var metadata = data[0];
+                        var resultdata = data[1];
+                        
+                        
+                        App.log('acked set');
+                        App.log(typeof(acked));
+                        
+                        
+                        //App.currentController.set('acked', resultdata);
                     }
                 }
             });
@@ -191,33 +220,50 @@ function emberStart() {
                     $('#notifications-spinner').fadeOut('slow');
                     
                     if (data) {
-                                    
-                        if (data.length > 0) App.currentController.lastIdNotification = data[0].notification_id;
+                        
+                        var metadata = data[0];
+                        var resultdata = data[1]["result"];
+                          
+                        if (resultdata.length > 0) App.currentController.lastIdNotification = resultdata[0].notification_id;
                                       
                         // Loop through all returned data and write to screen
-                        if (data.length != 0) {
+                        if (resultdata.length != 0) {
                                            
                             var oldhistoryarray = App.currentController.get('history');
+                            
+                            // create an ember array if one does not exist
+                            if (typeof(oldhistoryarray) === "undefined") oldhistoryarray = Ember.A();
+                        
                             oldhistoryarray.reverse();  
                             
                             var temphistoryarray = Ember.A();
-                            
-                            for (var i=data.length-1; i>=0; i--) {
+                                                        
+                            for (var i=resultdata.length-1; i>=0; i--) {
                                 // only add this item if it does not already exist on the page
-                                if ($('#notification-'+data[i].notification_id).length == 0) {
+                                if ($('#notification-'+resultdata[i].notification_id).length == 0) {
                                     
                                     //* give us the minutes since the previous history element */
                                     // subtract start_time from current time
                                     var date1;
-                                    var date2 = new Date(data[i].start_time);
+                                    var date2 = new Date(Date.parse(resultdata[i].start_time));
                                     if (oldhistoryarray.length > 0) {
                                     
-                                        date1 = new Date(oldhistoryarray[oldhistoryarray.length-1].start_time);
+                                        //date1 = new Date(oldhistoryarray[oldhistoryarray.length-1].start_time);
+                                        
+                                        date1 = new Date(Date.parse(oldhistoryarray[oldhistoryarray.length-1].start_time));
                                         App.log('updateHistory() oldhistoryarray got date '+date1);
                                         
                                     } else if(temphistoryarray.length > 0) {
                                     
-                                        date1 = new Date(temphistoryarray[temphistoryarray.length-1].start_time);
+                                        //var datestring = Date.parse(temphistoryarray[temphistoryarray.length-1].start_time);
+                                        
+                                        //date1 = new Date(temphistoryarray[temphistoryarray.length-1].start_time);
+                                        date1 = new Date(Date.parse(temphistoryarray[temphistoryarray.length-1].start_time));
+                                        
+                                        App.log('date1');
+                                        App.log(temphistoryarray[temphistoryarray.length-1].start_time);
+                                        App.log(date1);
+                                        
                                         App.log('updateHistory() temphistory got date '+date1);
                                         
                                     } else {
@@ -230,22 +276,28 @@ function emberStart() {
                                     diff = diff.toFixed(0);
                                     
                                     // set it
-                                    data[i].since = diff;
+                                    resultdata[i].since = diff;
                                     //* give us the minutes since the previous history element */
                                     
-                                    temphistoryarray.pushObject(App.Item.create(data[i]));
+                                    temphistoryarray.pushObject(App.Item.create(resultdata[i]));
                                 }
                             }
                             
                             var newhistoryarray = oldhistoryarray.concat(temphistoryarray);
+                            //var newhistoryarray = temphistoryarray.concat(oldhistoryarray);
                             newhistoryarray.reverse(); 
-                            
+                                                        
                             for(var j=0;j<newhistoryarray.length;j++) {
                                 newhistoryarray[j].set('first', false);
                             }
+                            //if (typeof(newhistoryarray) !== "undefined" && newhistoryarray.length > 0) {
+                            
                             newhistoryarray[0].set('first', true);
-                                                
+                            //}
+                            
+                            App.log('before');        
                             App.currentController.set('history', newhistoryarray);  // need to appendChild
+                            App.log('after');
                         }
                     }
                     
@@ -270,7 +322,7 @@ function emberStart() {
             // for each item in the history, update the 'ago' value
             for (var h=history.length-1; h>=0; h--) {
                 // subtract start_time from current time
-                var date1 = new Date(history[h].start_time);
+                var date1 = new Date(Date.parse(history[h].start_time));
                 var date2 = new Date();
                 
                 var diff = date2.getTime() - date1.getTime();
@@ -284,10 +336,8 @@ function emberStart() {
                 history[h].set('minutes_ago', minutes);
             }
         }
-        
-        
-        
     });
+    
 
     App.mainView = Ember.View.create({
         
@@ -302,9 +352,6 @@ function emberStart() {
             //App.log('mainView didInsertElement');
             //App.log(this.$());
         },
-        
-        
-        
         
         currentEmpty: function() {
             App.log('currentEmpty() '+App.currentController.current.length);
@@ -324,9 +371,6 @@ function emberStart() {
             return "width:"+this.timerPercent+"%";
         }.property("timerPercent"),
         
-        
-       
-        
         didInsertElement: function() {
             if (servername) {
                 //App.log('settingname');
@@ -338,10 +382,7 @@ function emberStart() {
     
     
     App.barCurrent = Ember.View.create({
-        //content: [],
-        //current: [],
-        //acked: [],
-        //history: [],
+        
         templateName: 'bar-chart',
         name: "Nagios Debian",
         totalGateways: -1,
@@ -356,6 +397,7 @@ function emberStart() {
             return "bggreen";
             //return "bgyellow";
             //return "bgred";
+            
         }.property("App.currentController.current")
     });
     App.barCurrent.appendTo('#barAreaCurrent');
@@ -402,13 +444,7 @@ function emberStart() {
         firstTimespan: function() {
         
             var content = this.bindingContext;
-            
-            //App.log('firstTimespan');
-            //App.log(content);
-            
-            //var position = jQuery.inArray(this, content);
-            //App.log(position);
-            
+                        
             if (content.first) {
                 return true;
             } else {
@@ -419,10 +455,7 @@ function emberStart() {
         largeTimespan: function() {
         
             var content = this.bindingContext;
-            
-            //App.log('largeTimespan');
-            //App.log(content);
-            
+                        
             if (content.since > 30) {
                 return true;
             } else {
@@ -505,14 +538,15 @@ function emberStart() {
 
 function updateTime() {
 
-    // TODO: perform this with a timestamp sent down from the server
-    var now = new Date();
-    var hours = now.getHours(); if (hours < 10) hours = '0'+hours;
-    var minutes = now.getMinutes(); if (minutes < 10) minutes = '0'+minutes;
-    var seconds = now.getSeconds(); if (seconds < 10) seconds = '0'+seconds;
+    //var now = new Date();
+    //var hours = now.getHours(); if (hours < 10) hours = '0'+hours;
+    //var minutes = now.getMinutes(); if (minutes < 10) minutes = '0'+minutes;
+    //var seconds = now.getSeconds(); if (seconds < 10) seconds = '0'+seconds;
     //datePageLoad = hours +':'+ minutes +':'+ seconds;
-    var str = hours + ':' + minutes + ':' + seconds;
-    $('#currentTime').html(str);
+    //var str = hours + ':' + minutes + ':' + seconds;
+    //$('#currentTime').html(str);
+    
+    $('#currentTime').html(new Date().toString());
 }
 
 $(document).ready(function(){
@@ -522,10 +556,6 @@ $(document).ready(function(){
     
     // This hides the jQuery warning
     $('#jquery-test').hide();
-    //return;
-
-    
-
     
     /*
     var now = new Date();

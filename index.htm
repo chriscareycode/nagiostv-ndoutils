@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8">
 <title>Nagios TV Monitor 2.0</title>
 
 <link href="lib/bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -59,7 +60,9 @@
         <span id="current-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
     </div>
     
-    <div class="currentTimeDiv">Current Time: <span id="currentTime">00:00:00</span></div>
+    <div class="remoteTimeDiv" style="">Remote Time: <span id="remoteTime">00:00:00</span> Diff: <span id="differenceTime">00:00:00</span></div>
+    <div class="localTimeDiv" style="">Local Time: <span id="currentTime">00:00:00</span></div>
+    
     
     {{#if currentDisconnected}}
         {{view App.currentDisconnectedView}}
@@ -249,9 +252,10 @@
 <div id="main">
 
     <div id="jquery-test" class="graybg nagalert" style="text-align:center;width:300px;margin-right:auto;margin-left:auto;padding:10px;">
-        <div style="font-size:24px;">NagiosTV <span style="font-size:14px;">v2.0</span></div>
-        <div style="font-size:18px;">by Christopher Carey<br />
-        http://chriscarey.com</div>
+        <div style="font-size:24px;">NagiosTV <span style="font-size:14px;">v0.2</span></div>
+        <div style="font-size:18px;">by Christopher Carey</div>
+        <div style="font-size:14px;">http://chriscarey.com</div>
+        
         
        
         <img src="images/emberjs-logo.png" alt="emberjs-logo" style="width:100px;" />
@@ -270,6 +274,7 @@ ENV = {
 </script>
 <script type="text/javascript" src="lib/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="lib/ember-0.9.8.1.js"></script>
+<script type="text/javascript" src="lib/date.js"></script>
 <script type="text/javascript" src="lib/bootstrap/js/bootstrap.js"></script>
 <script type="text/javascript" src="config.js"></script>
 <script type="text/javascript" src="main.js"></script>
