@@ -15,7 +15,13 @@ Screenshot
 Installation
 ------------
 
-- copy config.php.dist to config.php
-- copy config.js.dist to config.js
-- edit config.php and set the values
+This project is built upon Nagios ndoutils.
+NDOUtils allows you to export current and historical data from one or more Nagios instances to a MySQL database.
+Install ndoutils package on your Nagios installation and have that up and running first.
+
+- copy config.php.dist to config.php. This is the server-side configuration file
+- copy config.js.dist to config.js. This is the client-side configuration file
+- edit config.php and set the values 
 - edit config.js and set the values
+
+
