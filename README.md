@@ -3,7 +3,9 @@ NagiosTV
 
 Watch multiple Nagios servers on a wall mounted TV (or your desktop)
 
-Written with Javascript, jQuery, EmberJS, Twitter Bootstrap
+Client Side: HTML5, Javascript, jQuery, EmberJS, Twitter Bootstrap
+Server Side: PHP, MySQL
+Data transfer: AJAX, JSON
 
 Screenshot
 ------------
