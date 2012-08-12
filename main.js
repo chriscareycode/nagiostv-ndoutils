@@ -36,7 +36,12 @@ function emberStart() {
         
         serverHostName: '',
         
-        localTimeZone: 'US/Pacific',
+        localTimeZone: function() {
+            // Auto Detect with http://www.pageloom.com/automatic-timezone-detection-with-javascript
+            var timezone = jstz.determine();
+            return timezone.name();
+
+        }.property(),
         
         remoteTime: '',
         remoteTimeObject: 0,
