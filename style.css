@@ -29,19 +29,26 @@ a:hover {
     /* position:relative;
     top:-8px;*/
     margin-top:12px;
-    margin-bottom:0px;
+    margin-bottom:6px;
+    padding-bottom:4px;
     margin-left:5px;
+    border-bottom:1px solid #333;
 }
 
 .remoteTimeDiv {
     margin-left:5px;
     margin-bottom:0px;
-    font-size:20px;
+    font-size:18px;
 }
 .localTimeDiv {
     margin-left:5px;
+    margin-bottom:0px;
+    font-size:18px;
+}
+.diffTimeDiv {
+    margin-left:5px;
     margin-bottom:9px;
-    font-size:20px;
+    font-size:16px;
 }
 
 .numbers {

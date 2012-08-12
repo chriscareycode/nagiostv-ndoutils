@@ -7,4 +7,5 @@
  *
  ******************************************************************************/
  
- var servername = "my nagios";
+var config_servername = "Nagios Home";
+var config_timezone = "US/Pacific";

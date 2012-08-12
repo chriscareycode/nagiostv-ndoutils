@@ -52,7 +52,7 @@
 </div>
 </script>
 
-<script type="text/x-handlebars" data-template-name="stats"> 
+<script type="text/x-handlebars" data-template-name="main-view"> 
  
  
     <div class="environment">
@@ -60,9 +60,21 @@
         <span id="current-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
     </div>
     
-    <div class="remoteTimeDiv" style="">Remote Time: <span id="remoteTime">00:00:00</span> Diff: <span id="differenceTime">00:00:00</span></div>
-    <div class="localTimeDiv" style="">Local Time: <span id="currentTime">00:00:00</span></div>
+    <div class="localTimeDiv" style="">
+        Local Time: <span id="localTime">00:00:00</span><br />
+        Local Time Zone: <span id="localTimeZone">{{App.currentController.localTimeZone}}</span> 
+    </div>
     
+    <div class="remoteTimeDiv" style="">
+        Remote Time: {{App.currentController.remoteTime}}<br />
+        Remote Time Zone: <span id="remoteTimeZone">{{App.currentController.remoteTimeZone}}</span>
+    </div>
+    
+    
+    
+    <div class="diffTimeDiv" style="">
+    <span style="font-size:14px;">Time Difference: {{App.currentController.timeZoneDiffHours}} hours</span>
+    </div>
     
     {{#if currentDisconnected}}
         {{view App.currentDisconnectedView}}
@@ -226,10 +238,13 @@
     
     
     {{#if view.isSoft}}
-        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} WARN @ {{status_update_time}}</div>
+        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} WARN @ {{last_state_change}}</div>
+        <div>{{view.stateTypeName}} WARN for {{view.downFor}}</div>
     {{else}}
-        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} DOWN @ {{status_update_time}}</div>
+        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} DOWN @ {{last_state_change}}</div>
+        <div>{{view.stateTypeName}} DOWN for {{view.downFor}}</div>
     {{/if}}
+    
     
     
     <div>NEXT CHECK @ {{next_check}}</div>
@@ -271,10 +286,14 @@ ENV = {
     VIEW_PRESERVES_CONTEXT: true,
     RAISE_ON_DEPRECATION: true
 };
+
+
+
 </script>
 <script type="text/javascript" src="lib/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="lib/ember-0.9.8.1.js"></script>
 <script type="text/javascript" src="lib/date.js"></script>
+<script type="text/javascript" src="lib/timezone-js/src/date.js"></script>
 <script type="text/javascript" src="lib/bootstrap/js/bootstrap.js"></script>
 <script type="text/javascript" src="config.js"></script>
 <script type="text/javascript" src="main.js"></script>

@@ -68,7 +68,13 @@
             $json_array = array();
             $result_array = array();
             // add a time stamp to this array
-            array_push($json_array, array('stamp'=> time() ));
+            
+            //$dtz = new DateTimeZone();
+            //$offset = tdz.getOffset();
+            $seconds = date_offset_get(new DateTime);
+            $offset = $seconds / 3600;
+            
+            array_push($json_array, array('stamp'=> time(), 'offset'=>$offset ));
             
             // push all the results down into a json string
             while ($row = mysql_fetch_array($result)) {

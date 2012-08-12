@@ -34,6 +34,16 @@ function emberStart() {
         acked: [],
         history: [],
         
+        serverHostName: '',
+        
+        localTimeZone: 'US/Pacific',
+        
+        remoteTime: '',
+        remoteTimeObject: 0,
+        remoteTimeZone: config_timezone || 'US/Pacific',
+        
+        timeZoneDiffHours: 0,
+        
         currentDisconnected: true,
         
         lastIdNotification: 0,
@@ -88,19 +98,27 @@ function emberStart() {
                             return;
                         }
                         
-                        // If a timestamp was sent down in the metadata, update the remote clock display
-                        if (metadata["stamp"]) {
-                            var remotedate = new Date(0);
-                            remotedate.setUTCSeconds(metadata["stamp"]);
-                            $('#remoteTime').html(remotedate.toString());
+                        if (metadata["stamp"] && metadata["offset"]) {
+                        
+                            // set Local Time
+                            var localdate = new timezoneJS.Date(new Date().toString(), that.get('localTimeZone'));
+                            var local_offset = -localdate.getTimezoneOffset() / 60;
+                                                       
+                            // set Remote Time
+                            var remotetime = new Date(0);
+                            remotetime.setUTCSeconds(metadata["stamp"]);
+                            remotetime = new timezoneJS.Date(remotetime.toString(), that.get('remoteTimeZone'));
+                            that.set('remoteTimeObject', remotetime);
+                            that.set('remoteTime', remotetime.toString());
                             
-                            var now = new Date();
-                            var diff = now.getHours() - remotedate.getHours();
-                            $('#differenceTime').html(diff.toString());
+                            // difference time
+                            var diff = remotetime.getHours() - localdate.getHours();
+                            that.set('timeZoneDiffHours', diff);
+                            
                         }
                     
                         // grab the current list of items
-                        var current = App.currentController.get('current');
+                        var current = that.get('current');
                         
                         // create an ember array if one does not exist
                         if (typeof(current) === "undefined") current = Ember.A();
@@ -160,12 +178,8 @@ function emberStart() {
                             }
                         }
                         
-                        
-                        
                         // set the new current array back into the controller
-                        //App.log('current set');
-                        //App.log(typeof(current));
-                        App.currentController.set('current', current);
+                        that.set('current', current);
                         
                         // Kick off the countdown again (which runs the bar chart and/or any other animations)        
                         that.startCountdown(App.mainView);
@@ -175,6 +189,8 @@ function emberStart() {
         },
         
         updateAcked: function() {
+            
+            var that = this;
             
             //TODO: fix ACKed. Its broken right now.
             
@@ -196,8 +212,8 @@ function emberStart() {
                         var resultdata = data[1];
                         
                         
-                        App.log('acked set');
-                        App.log(typeof(acked));
+                        //App.log('acked set');
+                        //App.log(typeof(acked));
                         
                         
                         //App.currentController.set('acked', resultdata);
@@ -208,12 +224,14 @@ function emberStart() {
         
         updateHistory: function() {
             
+            var that = this;
+            
             $('#notifications-spinner').show();
             
             $.ajax({
                 type: "GET",
                 url: "api.php",
-                data: "func=history&maxcount="+maxCountNotification+"&lastid="+App.currentController.lastIdNotification,
+                data: "func=history&maxcount="+maxCountNotification+"&lastid="+that.lastIdNotification,
                 dataType: "json",
                 success: function(data){
                     
@@ -224,12 +242,12 @@ function emberStart() {
                         var metadata = data[0];
                         var resultdata = data[1]["result"];
                           
-                        if (resultdata.length > 0) App.currentController.lastIdNotification = resultdata[0].notification_id;
+                        if (resultdata.length > 0) that.lastIdNotification = resultdata[0].notification_id;
                                       
                         // Loop through all returned data and write to screen
                         if (resultdata.length != 0) {
                                            
-                            var oldhistoryarray = App.currentController.get('history');
+                            var oldhistoryarray = that.get('history');
                             
                             // create an ember array if one does not exist
                             if (typeof(oldhistoryarray) === "undefined") oldhistoryarray = Ember.A();
@@ -260,11 +278,11 @@ function emberStart() {
                                         //date1 = new Date(temphistoryarray[temphistoryarray.length-1].start_time);
                                         date1 = new Date(Date.parse(temphistoryarray[temphistoryarray.length-1].start_time));
                                         
-                                        App.log('date1');
-                                        App.log(temphistoryarray[temphistoryarray.length-1].start_time);
-                                        App.log(date1);
+                                        //App.log('date1');
+                                        //App.log(temphistoryarray[temphistoryarray.length-1].start_time);
+                                        //App.log(date1);
                                         
-                                        App.log('updateHistory() temphistory got date '+date1);
+                                        //App.log('updateHistory() temphistory got date '+date1);
                                         
                                     } else {
                                         // FIXME: last one on the page falls into this
@@ -290,19 +308,18 @@ function emberStart() {
                             for(var j=0;j<newhistoryarray.length;j++) {
                                 newhistoryarray[j].set('first', false);
                             }
-                            //if (typeof(newhistoryarray) !== "undefined" && newhistoryarray.length > 0) {
                             
+                            //if (typeof(newhistoryarray) !== "undefined" && newhistoryarray.length > 0) {
                             newhistoryarray[0].set('first', true);
                             //}
                             
-                            App.log('before');        
-                            App.currentController.set('history', newhistoryarray);  // need to appendChild
-                            App.log('after');
+                                    
+                            that.set('history', newhistoryarray);  // need to appendChild
                         }
                     }
                     
                     // update history even if no new data
-                    App.currentController.updateHistoryAgo();
+                    that.updateHistoryAgo();
                 }
             });   
         },
@@ -317,15 +334,22 @@ function emberStart() {
         // For each history item, update ago, seconds_ago, and minutes_ago values
         updateHistoryAgo: function() {
         
-            var history = App.currentController.get('history');
+            var that = this;
             
+            var history = that.get('history');
+            var date2 = new Date(); //now
+            var diffhours = that.get('timeZoneDiffHours');
+                        
             // for each item in the history, update the 'ago' value
             for (var h=history.length-1; h>=0; h--) {
+            
                 // subtract start_time from current time
                 var date1 = new Date(Date.parse(history[h].start_time));
-                var date2 = new Date();
+                date1.addHours(-diffhours);
                 
                 var diff = date2.getTime() - date1.getTime();
+                var diff = date2 - date1;
+                
                 var seconds = (diff/1000).toFixed(0);
                 var minutes = (diff/(60*1000)).toFixed(0);
                 diff = diff/(60*1000);
@@ -342,6 +366,13 @@ function emberStart() {
     App.mainView = Ember.View.create({
         
         //currentDisconnected: true,
+        
+        // TODO: get teh controller not via this global way, but from the contextbinding or something
+        
+        templateName: 'main-view',
+        //name: "No Name",
+        totalGateways: -1,
+        
         
         currentDisconnected: function() {
             //App.log('currentDisconnected() '+App.currentController.current.length);
@@ -362,9 +393,7 @@ function emberStart() {
             }
         }.property("App.currentController.current.length"),
         
-        templateName: 'stats',
-        //name: "No Name",
-        totalGateways: -1,
+        
         
         timerPercent:100,
         timerWidth: function() {
@@ -372,9 +401,8 @@ function emberStart() {
         }.property("timerPercent"),
         
         didInsertElement: function() {
-            if (servername) {
-                //App.log('settingname');
-                this.set('name', servername);
+            if (config_servername) {
+                this.set('name', config_servername);
             }
         }
     });
@@ -529,6 +557,47 @@ function emberStart() {
             
         }.property('this.bindingContext.state_type'),
         
+        downFor: function() {
+        
+            var content = this.bindingContext;
+
+            var that = this;
+            var diffhours = App.currentController.get('timeZoneDiffHours');
+            var date1 = new Date(Date.parse(content.last_state_change));
+            //var date1 = new timezoneJS.Date(new Date(Date.parse(content.last_state_change)).toString(), App.currentController.get('localTimeZone'));
+            date1.addHours(-diffhours);
+            // set Local Time
+            //var localdate = new timezoneJS.Date(new Date().toString(), App.currentController.get('localTimeZone'));
+
+
+            var remotedate = App.currentController.get("remoteTimeObject");
+
+            var diff = remotedate - date1;
+
+            var seconds = (diff/1000).toFixed(0);
+            //seconds = seconds + (diffhours*3600);
+            
+            
+            
+            
+            //var seconds = content.seconds_ago;
+            
+            var numdays = Math.floor(seconds / 86400);
+            var numhours = Math.floor((seconds % 86400) / 3600);
+            var numminutes = Math.floor(((seconds % 86400) % 3600) / 60);
+            var numseconds = ((seconds % 86400) % 3600) % 60;
+            
+            return numdays + "d " + numhours + "h " + numminutes + "m " + numseconds + "s";
+            
+            
+            
+            //
+            
+            
+            //return diff;
+            
+        }.property('App.mainView.timerPercent'),
+        
         didInsertElement: function() {
             
             this.$().slideDown('slow');
@@ -546,12 +615,18 @@ function updateTime() {
     //var str = hours + ':' + minutes + ':' + seconds;
     //$('#currentTime').html(str);
     
-    $('#currentTime').html(new Date().toString());
+    
+    var localdate = new timezoneJS.Date(new Date().toString(), 'America/Los_Angeles');
+    
+    $('#localTime').html(localdate.toString());
+    //$('#localTime').html(new Date().toString());
 }
 
 $(document).ready(function(){
 
     
+    timezoneJS.timezone.zoneFileBasePath = 'tz';
+timezoneJS.timezone.init();
 
     
     // This hides the jQuery warning
