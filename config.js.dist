@@ -9,3 +9,4 @@
  
 var config_servername = "Nagios Home";
 var config_timezone = "US/Pacific";
+var config_icon = "images/favicon.ico";

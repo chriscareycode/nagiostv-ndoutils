@@ -39,6 +39,7 @@ function emberStart() {
         localTimeZone: function() {
             // Auto Detect with http://www.pageloom.com/automatic-timezone-detection-with-javascript
             var timezone = jstz.determine();
+            App.log('Detecting Local TimeZone as '+timezone.name());
             return timezone.name();
 
         }.property(),
@@ -409,6 +410,17 @@ function emberStart() {
             if (config_servername) {
                 this.set('name', config_servername);
             }
+            
+            
+            
+            if (config_icon) {
+                App.log('setting icon to '+config_icon);
+                $('#config_icon').attr('src', config_icon);
+                //$('#config_icon').css('background-image', 'url('+config_icon+')');
+                App.log('set');
+            }
+    
+    
         }
     });
     App.mainView.appendTo('#col1');
@@ -631,11 +643,13 @@ $(document).ready(function(){
 
     
     timezoneJS.timezone.zoneFileBasePath = 'tz';
-timezoneJS.timezone.init();
+    timezoneJS.timezone.init();
 
     
     // This hides the jQuery warning
     $('#jquery-test').hide();
+    
+    
     
     /*
     var now = new Date();
@@ -651,6 +665,8 @@ timezoneJS.timezone.init();
     App.log('Current refresh is set to '+refreshCurrent+' seconds');
     App.log('Acked refresh is set to '+refreshAcked+' seconds');
     App.log('History refresh is set to '+refreshNotification+' seconds');
+    
+    
     
     App.currentController.updateCurrent(); // Update current Now
     setInterval("App.currentController.updateCurrent()", refreshCurrent * 1000); // Update page every n seconds

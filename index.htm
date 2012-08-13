@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="initial-scale = 0.7,maximum-scale = 1.0" />
+<meta name="viewport" content="initial-scale = 0.75,maximum-scale = 1.0" />
 <title>Nagios TV Monitor 2.0</title>
 
 <link href="lib/bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -16,7 +16,7 @@
     }
 </style>
 
-<link rel="icon" href="http://admin.pertino.com/image/pertino_logo_ico.png" type="image/x-icon" /> 
+<link rel="icon" href="images/favicon.ico" type="image/x-icon" /> 
 </head>
 <body>
 
@@ -25,7 +25,7 @@
         <div class="container">
             <ul class="nav">
                 <li>
-                    <img src="http://admin.pertino.com/image/pertino_p.png" alt="Pertino_logo_053112" style="height:30px;position:relative;top:5px;margin-right:4px;" />
+                    <img src="" style="height:30px;position:relative;top:5px;margin-right:4px;" />
                     <span style="font-size:24px;font-weight:bold;color:white;position:relative;top:11px;">
                     Nagios Monitor 2.0</span>
                     
@@ -57,18 +57,25 @@
  
  
     <div class="environment">
+        <img id="config_icon" style="height:25px;width:25px;position:relative;top:-3px;" />
         {{name}}
         <span id="current-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
     </div>
     
-    <div class="localTimeDiv" style="">
-        Local Time: <span id="localTime">00:00:00</span><br />
-        Local Time Zone: <span id="localTimeZone">{{App.currentController.localTimeZone}}</span> 
+    <div class="localTimeDiv" style="font-weight:bold;">
+        Local Time: <span id="localTime">00:00:00</span>
+         
     </div>
     
-    <div class="remoteTimeDiv" style="">
-        Remote Time: {{App.currentController.remoteTime}}<br />
-        Remote Time Zone: <span id="remoteTimeZone">{{App.currentController.remoteTimeZone}}</span>
+    <div style="margin-left:5px;font-size:14px;">Local Time Zone: <span id="localTimeZone">{{App.currentController.localTimeZone}}</span></div>
+    
+    <div class="remoteTimeDiv" style="font-weight:bold;">
+        Remote Time: {{App.currentController.remoteTime}}
+        
+    </div>
+    
+    <div style="margin-left:5px;font-size:14px;">
+        <span style="font-size:14px;">Remote Time Zone: <span id="remoteTimeZone">{{App.currentController.remoteTimeZone}}</span></span>
     </div>
     
     
