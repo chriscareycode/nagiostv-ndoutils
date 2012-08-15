@@ -121,9 +121,9 @@ function emberStart() {
                             that.set('remoteTimeObject', remotetime);
                             that.set('remoteTime', remotetime.toString());
                             
-                            // difference time
-                            var diff = remotetime.getHours() - localdate.getHours();
-                            that.set('timeZoneDiffHours', diff);
+                            // calculate difference hours with datejs TimeSpan
+                            var span = new TimeSpan(end - start);
+                            that.set('timeZoneDiffHours', span.hours);
                             
                         }
                     
