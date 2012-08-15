@@ -66,6 +66,10 @@ function emberStart() {
             
                 var pct = ((count-1) / origcount)*100;
                 obj.set('timerPercent',pct);
+                
+                // set the piecon to the percent as well
+                Piecon.setProgress(pct);
+                
                 if (count == 0) {
                     clearInterval(obj.countdown);
                 }
