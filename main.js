@@ -126,7 +126,7 @@ function emberStart() {
                             //that.set('timeZoneDiffHours', diff);
 
                             // calculate difference hours with datejs TimeSpan
-                            var span = remotetime.getTimezoneOffset() - localdate.getTimezoneOffset();
+                            var span = localdate.getTimezoneOffset() - remotetime.getTimezoneOffset();
                             that.set('timeZoneDiffHours', span/60);
                             
                         }
