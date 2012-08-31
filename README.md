@@ -27,6 +27,7 @@ Install ndoutils package on your Nagios installation and have that up and runnin
 
 To do the four-in-one, just make a simple html frames page as such:
 
+<code>
 <!DOCTYPE html>
 <html>
     <head>
@@ -40,3 +41,4 @@ To do the four-in-one, just make a simple html frames page as such:
         <frame name="four" src="http://192.168.0.70/nagiostv/" target="_blank">
     </frameset>
 </html>
+</code>
