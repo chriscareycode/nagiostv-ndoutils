@@ -1,7 +1,7 @@
 NagiosTV
 ------------
 
-Watch multiple Nagios servers on a wall mounted TV (or your desktop)
+Watch one or more Nagios servers on a wall mounted TV (or your desktop)
 
 - Client Side: HTML5, Javascript, jQuery, EmberJS, Twitter Bootstrap
 - Server Side: PHP, MySQL
