@@ -25,3 +25,18 @@ Install ndoutils package on your Nagios installation and have that up and runnin
 - edit config.js and set the values
 
 
+To do the four-in-one, just make a simple html frames page as such:
+
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>Stats All-in-one</title>
+    </head>
+    <!-- frameset is deprecated in html5, but it still works. -->
+    <frameset framespacing="0" COLS="25%,25%,25%,25%" frameborder="0" noresize>
+        <frame name="one" src="http://10.4.4.6/nagiostv/" target="_blank">
+        <frame name="two" src="http://192.168.0.70/nagiostv/" target="_blank">
+        <frame name="three" src="http://192.168.10.10/nagiostv/" target="_blank">
+        <frame name="four" src="http://192.168.0.70/nagiostv/" target="_blank">
+    </frameset>
+</html>
