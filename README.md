@@ -12,12 +12,26 @@ Screenshot
 
 ![Display](http://chriscarey.com/projects/ajax-monitor-for-nagios/ajax-monitor-2.0-1.png)
 
-Installation
+
+Requirements
 ------------
+
+Packages needed by api.php:
+
+php5
+php5-mysql
+php5-curl
+libapache2-mod-php5
 
 This project is built upon Nagios ndoutils.
 NDOUtils allows you to export current and historical data from one or more Nagios instances to a MySQL database.
-Install ndoutils package on your Nagios installation and have that up and running first.
+
+- Install ndoutils package on your Nagios installation and have that up and running first.
+- The hostname/username/password to your database will be needed in the config.php file.
+- A read-only user is fine since no writes are done to the database.
+
+Installation
+------------
 
 - git clone git@github.com:chriscareycode/NagiosTV.git
 - cd NagiosTV
@@ -28,4 +42,11 @@ Install ndoutils package on your Nagios installation and have that up and runnin
 
 
 To do the four-in-one, you can look at frame-sample.htm included.
+
+TODO
+------------
+Features to work on next:
+
+- Fix the ACKed section
+- a config.php page which checks prerequisites on the server side and communicates that down to the client if there is a problem.
 
