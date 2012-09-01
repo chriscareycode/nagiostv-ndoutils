@@ -501,7 +501,8 @@ function emberStart() {
         
         bgColor: function() {
         
-            return "bggreen";
+            return "bggray";
+            //return "bggreen";
             //return "bgyellow";
             //return "bgred";
             

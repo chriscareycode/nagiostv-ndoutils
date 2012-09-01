@@ -86,7 +86,7 @@ a:hover {
 }
 .wait {
     text-align:center;
-    opacity:0.5;
+    /* opacity:0.75;*/
     
     
 }
@@ -110,7 +110,7 @@ a:hover {
 #barAreaCurrent {
     position:relative;
     top:-10px;
-    opacity:0.55;
+    /* opacity:0.55;*/
 }
 
 /* general style */
@@ -224,6 +224,14 @@ div#statistics {
     font-weight:bold;
 }
 
+.progress {
+    background-color: #222;
+    background-image:none;
+}
+.progress .bggray {
+    background-image:none;
+    background-color:#555;
+}
 .progress .bggreen {
     background-image:none;
     background-color:lime;
