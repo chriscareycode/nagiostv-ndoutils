@@ -220,17 +220,7 @@
     
     <div id="current-{{unbound servicestatus_id}}" class="graybg nagalert critical currentitem" style="display:block;">
     
-    {{#if view.isSoft}}
-    <div style="float:right;position:relative;" >
-        <div class="timer">
-            <div class="mask"></div>
-        </div>
-    </div>
-    {{else}}
-    <div style="float:right;position:relative;top:-1px;left:2px;display:none;" >
-        <div class="timer-no"></div>
-    </div>
-    {{/if}}
+    
     
     
     {{#if name2}}
@@ -261,6 +251,13 @@
     <div>NEXT CHECK @ {{next_check}}</div>
     
     
+    {{#if view.isSoft}}
+    <div class="progress" style="margin-top:5px;margin-bottom:5px;color:#fff;">
+        <div {{bindAttr class="view.bgColor :bar"}} {{bindAttr style="view.softtimerWidth"}}></div>
+    </div>
+    {{else}}
+    {{/if}}
+
     
     
     </div>

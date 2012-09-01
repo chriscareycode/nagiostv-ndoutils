@@ -113,6 +113,8 @@ function emberStart() {
                 count--;
             }, 1000);
         },
+
+        
         
         updateCurrent: function() {
             
@@ -203,6 +205,7 @@ function emberStart() {
                                 
                                 // add this new item into the current array
                                 current.pushObject( App.Item.create(resultdata[i]) );
+
                             }
                         }
                         
@@ -466,6 +469,7 @@ function emberStart() {
         timerWidth: function() {
             return "width:"+this.timerPercent+"%";
         }.property("timerPercent"),
+
         
         didInsertElement: function() {
             if (config_servername) {
@@ -578,6 +582,48 @@ function emberStart() {
         classNames: ['displayNone'],
         templateName: 'current-item',
 
+
+        softtimerPercent:100,
+        softtimerWidth: function() {
+            return "width:"+this.softtimerPercent+"%";
+        }.property("softtimerPercent"),
+
+        bgColor: function() {
+        
+            //return "bggreen";
+            return "bgyellow";
+            //return "bgred";
+            
+        }.property(),
+
+        startsoftCountdown: function() {
+
+            var that=this;
+
+            var count = 60 - 1;
+            var origcount = 60;
+            
+            clearInterval(that.softcountdown);
+            
+            that.set('softtimerPercent','100');
+            that.softcountdown = setInterval(function(){
+            
+                var pct = ((count-1) / origcount)*100;
+                that.set('softtimerPercent',pct);
+                
+                // set the piecon to the percent as well
+                //Piecon.setProgress(pct);
+                
+                if (count == 0) {
+                    clearInterval(that.softcountdown);
+                }
+                count--;
+            }, 1000);
+        },
+
+
+
+
         click: function() {
             App.log('currentItemView() click()');
         },
@@ -607,6 +653,9 @@ function emberStart() {
             App.log('currentItemView() stateTypeName state_type '+content.state_type);
                
             if (content.state_type === "0") {
+
+                this.startsoftCountdown();
+
                 return "SOFT";
             } else if(content.state_type === "1") {
                 return "HARD";
