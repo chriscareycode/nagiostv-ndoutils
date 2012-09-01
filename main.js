@@ -172,7 +172,7 @@ function emberStart() {
                         var current = that.get('current');
                         
                         // create an ember array if one does not exist
-                        if (typeof(current) === "undefined") current = Ember.A();
+                        if (typeof(current) === "undefined") current = Ember.MutableArray();
                         
                         // set the found bit on each item to 0. we will check for this bit later
                         // to compare the existing list of items against the one the server sends down
@@ -206,21 +206,36 @@ function emberStart() {
                             }
                         }
                         
+                        // If the server returns nothing, lets clear the items out all at once. 
+                        // Fixes the delayed All services are UP bug
+                        if (resultdata.length === 0) {
+
+                            $('.currentitem').slideUp('slow', function(){
+                                current.clear();
+                            });
+
+                        }
+
                         // erase any items which were not returned
-                        if (typeof(current) !== "undefined") {
+                        if (resultdata.length > 0 && typeof(current) !== "undefined") {
+
                             for(var j=current.length-1;j>=0;j--) {
-                                //App.log('updateCurrent() Searching index '+j+' - found:'+current[j].get('found'));
+                                
+                                //App.log('updateCurrent() Searching for found=0. current length is '+current.length+'. index '+j+' - found:'+current[j].get('found'));
                             
                                 if (current[j].get('found') === 0) {
-                                    App.log('updateCurrent() Erasing index '+j+ 'current length is '+current.length);
+                                    //App.log('updateCurrent() Erasing index '+j+ ' current length is '+current.length);
                                     
                                     $('#current-'+current[j].servicestatus_id).slideUp('slow', function(){
                                         
                                         try {
+                                            //App.log('updateCurrent() before removeAt():');
+                                            //App.log(current);
                                             current.removeAt(j);
+
                                         } catch(err) {
-                                            App.log('remove Error:'+err);
-                                            App.log(current);
+                                            App.log('updateCurrent() removeAt() Error: '+err);
+                                            //App.log(current);
                                         }
                                     });
                                 } else {
@@ -686,11 +701,11 @@ function updateTime() {
 
 $(document).ready(function(){
 
-    
+
     timezoneJS.timezone.zoneFileBasePath = 'lib/timezone-js/tz';
     timezoneJS.timezone.init();
 
-    
+
     // This hides the jQuery warning
     $('#jquery-test').hide();
     
