@@ -650,7 +650,7 @@ function updateTime() {
 $(document).ready(function(){
 
     
-    timezoneJS.timezone.zoneFileBasePath = 'tz';
+    timezoneJS.timezone.zoneFileBasePath = 'lib/timezone-js/tz';
     timezoneJS.timezone.init();
 
     
