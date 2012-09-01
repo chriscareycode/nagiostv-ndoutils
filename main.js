@@ -39,11 +39,9 @@ function emberStart() {
         versionLatest: '',
 
         versionCheck: function() {
-    
-            App.log('versionCheck()');
 
             if (!config_version_check) {
-                App.log('versionCheck() disabled');
+                App.log('versionCheck() Disabled');
                 return;
             }
             var that=this;
@@ -55,19 +53,19 @@ function emberStart() {
                 dataType: "json",
                 timeout: 5000,
                 error: function(data) {
-                    App.log('no version');
-                    App.log(data);
+                    App.log('versionCheck() Error getting version');
+                    //App.log(data);
                 },
                 success: function(data){
-                    App.log('got version');
-                    App.log(data);
+                    
+                    //App.log(data);
 
                     that.set('versionLatest', data.version);
 
                     if (data.version != that.get('versionCurrent')) {
 
                         that.set('versionMismatch', true);
-                        App.log('Version mismatch. Client has '+that.get('versionCurrent')+' and latest version is '+data.version);
+                        App.log('versionCheck() Version mismatch. Client has '+that.get('versionCurrent')+' and latest version is '+data.version);
                     }
                 }
             });
@@ -200,8 +198,8 @@ function emberStart() {
                             }                
                             if (!found) {
                                 // item was returned and it was not found. lets add it into the array of items
-                                App.log('updateCurrent() new item');
-                                App.log(resultdata[i]);
+                                //App.log('updateCurrent() new item');
+                                //App.log(resultdata[i]);
                                 
                                 // add this new item into the current array
                                 current.pushObject( App.Item.create(resultdata[i]) );
@@ -211,7 +209,7 @@ function emberStart() {
                         // erase any items which were not returned
                         if (typeof(current) !== "undefined") {
                             for(var j=current.length-1;j>=0;j--) {
-                                App.log('updateCurrent() Searching index '+j+' - found:'+current[j].get('found'));
+                                //App.log('updateCurrent() Searching index '+j+' - found:'+current[j].get('found'));
                             
                                 if (current[j].get('found') === 0) {
                                     App.log('updateCurrent() Erasing index '+j+ 'current length is '+current.length);
@@ -226,7 +224,7 @@ function emberStart() {
                                         }
                                     });
                                 } else {
-                                    App.log('updateCurrent() Item found at index '+j+'. Nothing to erase from current.');
+                                    //App.log('updateCurrent() Item found at index '+j+'. Nothing to erase from current.');
                                 }
                             }
                         }
@@ -462,10 +460,7 @@ function emberStart() {
             
             
             if (config_icon) {
-                App.log('setting icon to '+config_icon);
                 $('#config_icon').attr('src', config_icon);
-                //$('#config_icon').css('background-image', 'url('+config_icon+')');
-                App.log('set');
             }
     
     
