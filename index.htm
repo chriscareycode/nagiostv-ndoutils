@@ -62,9 +62,14 @@
         <span id="current-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
     </div>
     
+    {{#if App.currentController.versionMismatch}}
+    <div class="versionMismatch" style="">
+    <span style="font-size:14px;">Version Mismatch: Current: {{App.currentController.versionCurrent}} Latest: {{App.currentController.versionLatest}}</span>
+    </div>
+    {{/if}}
+    
     <div class="localTimeDiv" style="font-weight:bold;">
         Local Time: <span id="localTime">00:00:00</span>
-         
     </div>
     
     <div style="margin-left:5px;font-size:14px;">Local Time Zone: <span id="localTimeZone">{{App.currentController.localTimeZone}}</span></div>
@@ -77,8 +82,6 @@
     <div style="margin-left:5px;font-size:14px;">
         <span style="font-size:14px;">Remote Time Zone: <span id="remoteTimeZone">{{App.currentController.remoteTimeZone}}</span></span>
     </div>
-    
-    
     
     <div class="diffTimeDiv" style="">
     <span style="font-size:14px;">Time Difference: {{App.currentController.timeZoneDiffHours}} hours</span>
@@ -275,13 +278,10 @@
 <div id="main">
 
     <div id="jquery-test" class="graybg nagalert" style="text-align:center;width:300px;margin-right:auto;margin-left:auto;padding:10px;">
-        <div style="font-size:24px;">NagiosTV <span style="font-size:14px;">v0.2</span></div>
+        <div style="font-size:24px;">NagiosTV</div>
         <div style="font-size:18px;">by Christopher Carey</div>
         <div style="font-size:14px;">http://chriscarey.com</div>
         
-        
-       
-        <img src="images/emberjs-logo.png" alt="emberjs-logo" style="width:100px;" />
     </div>
     
 </div>

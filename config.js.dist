@@ -8,5 +8,6 @@
  ******************************************************************************/
  
 var config_servername = "Nagios Home";
-var config_timezone = "US/Pacific";
+var config_timezone = "America/Los_Angeles";
 var config_icon = "images/favicon.ico";
+var config_version_check = true;

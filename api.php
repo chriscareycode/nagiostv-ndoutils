@@ -4,16 +4,48 @@
 	require_once('config.php');
 	require_once('db.php');
 
+    // Functions
+    function doCheckVersion($version) {
+                
+        $post_data = "version=".$version;
+        $page = "/software/nagiostv/version/";
+        $url = "http://chriscarey.com".$page;
+        $headers = array(
+            "POST ".$page." HTTP/1.0",
+            "Content-type: text/xml;charset=\"utf-8\"",
+            "Accept: text/xml",
+            "Cache-Control: no-cache",
+            "Pragma: no-cache",
+            "Content-length: ".strlen($post_data)
+        );
+      
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+        $data = curl_exec($ch);
+        if (!curl_errno($ch)) {
+            curl_close($ch);
+        }
+        return $data;
+    }
+
     // Declare
     $sql = '';
 
     // Catch
     $func = ''; if (isset($_POST['func'])) $func = $_POST['func'];
-    if (isset($_GET['func'])) $func = $_GET['func']; //disable me after debug
     $lastid = ''; if (isset($_POST['lastid'])) $lastid = $_POST['lastid'];
-    if (isset($_GET['lastid'])) $lastid = $_GET['lastid'];
     $maxcount = '50'; if (isset($_POST['maxcount'])) $maxcount = $_POST['maxcount'];
+    $client_version = '0'; if (isset($_POST['client_version'])) $client_version = $_POST['client_version'];
+
+    if (isset($_GET['func'])) $func = $_GET['func']; //disable me after debug
+    if (isset($_GET['lastid'])) $lastid = $_GET['lastid'];
     if (isset($_GET['maxcount'])) $maxcount = $_GET['maxcount'];
+    if (isset($_GET['client_version'])) $client_version = $_GET['client_version'];
 
     // Start PHP Session
 	session_start();
@@ -49,6 +81,14 @@
 	       if (is_numeric($lastid)) $sql .= "WHERE (notification_id > ".$lastid.") ";
 	       $sql .= "ORDER BY start_time DESC LIMIT ".$maxcount.";";
 	       break;
+
+        case "versioncheck":
+       
+           $latest_version = doCheckVersion($client_version);
+           $json_version = array('version'=>$latest_version);
+           print json_encode($json_version);
+           exit;
+           break;
 	       
 	   default:
 	       $fail = array('OK'=>0, 'ERROR'=>'Bad Request');

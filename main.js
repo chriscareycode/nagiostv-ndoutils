@@ -34,8 +34,47 @@ function emberStart() {
         acked: [],
         history: [],
         
-        serverHostName: '',
-        
+        versionMismatch: false,
+        versionCurrent: '0.3',
+        versionLatest: '',
+
+        versionCheck: function() {
+    
+            App.log('versionCheck()');
+
+            if (!config_version_check) {
+                App.log('versionCheck() disabled');
+                return;
+            }
+            var that=this;
+
+            $.ajax({
+                type: "POST",
+                url: "api.php",
+                data: "func=versioncheck&client_version="+that.get('versionCurrent'),
+                dataType: "json",
+                timeout: 5000,
+                error: function(data) {
+                    App.log('no version');
+                    App.log(data);
+                },
+                success: function(data){
+                    App.log('got version');
+                    App.log(data);
+
+                    that.set('versionLatest', data.version);
+
+                    if (data.version != that.get('versionCurrent')) {
+
+                        that.set('versionMismatch', true);
+                        App.log('Version mismatch. Client has '+that.get('versionCurrent')+' and latest version is '+data.version);
+                    }
+                }
+            });
+        },
+
+
+
         localTimeZone: function() {
             // Auto Detect with http://www.pageloom.com/automatic-timezone-detection-with-javascript
             var timezone = jstz.determine();
@@ -376,6 +415,7 @@ function emberStart() {
         }
     });
     
+    App.currentController.versionCheck();
 
     App.mainView = Ember.View.create({
         
@@ -647,6 +687,8 @@ function updateTime() {
     //$('#localTime').html(new Date().toString());
 }
 
+
+
 $(document).ready(function(){
 
     
@@ -686,4 +728,5 @@ $(document).ready(function(){
     setInterval("App.currentController.updateHistory()", refreshNotification * 1000);
     
     setInterval("updateTime()", 1000);
+
 });

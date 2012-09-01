@@ -35,6 +35,13 @@ a:hover {
     border-bottom:1px solid #333;
 }
 
+.versionMismatch{
+
+    margin-left:5px;
+    margin-bottom:4px;
+    font-size:16px;
+}
+
 .remoteTimeDiv {
     margin-left:5px;
     margin-bottom:0px;
