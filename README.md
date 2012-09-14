@@ -10,7 +10,7 @@ Watch one or more Nagios servers on a wall mounted TV (or your desktop)
 Screenshot
 ------------
 
-![Display](http://chriscarey.com/projects/ajax-monitor-for-nagios/ajax-monitor-2.0-1.png)
+![Display](http://chriscarey.com/projects/ajax-monitor-for-nagios/nagios-5-in-1.png)
 
 
 Requirements
