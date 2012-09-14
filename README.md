@@ -62,3 +62,7 @@ Features to work on next:
 - Improve version number
 - Intelligent auto-updater?
 
+Credits
+------------
+NagiosTV by Chris Carey
+http://chriscarey.com
