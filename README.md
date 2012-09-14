@@ -3,7 +3,7 @@ NagiosTV
 
 Watch one or more Nagios servers on a wall mounted TV (or your desktop)
 
-New items slide in and out of place with animations.
+New items slide in and out of place with animations. Soft alerts show an animated 60 second bar chart timer.
 Hosts and services are clickable to jump to the Nagios web interface
 
 - Client Side: HTML5, Javascript, jQuery, EmberJS, Twitter Bootstrap
