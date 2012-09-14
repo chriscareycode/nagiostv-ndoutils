@@ -6,8 +6,9 @@ Watch one or more Nagios servers on a wall mounted TV (or your desktop)
 - Client Side: HTML5, Javascript, jQuery, EmberJS, Twitter Bootstrap
 - Server Side: PHP, MySQL
 - Data transfer: AJAX, JSON
+- Piecon https://github.com/lipka/piecon
 
-Screenshot
+Screenshot of 5 Nagios servers on one TV (5-in-1)
 ------------
 
 ![Display](http://chriscarey.com/projects/ajax-monitor-for-nagios/nagios-5-in-1.png)
@@ -34,13 +35,22 @@ Installation
 ------------
 
 - git clone git@github.com:chriscareycode/NagiosTV.git
-- cd NagiosTV
+- $ cd NagiosTV
 - copy config.php.dist to config.php. This is the server-side configuration file
 - copy config.js.dist to config.js. This is the client-side configuration file
 - edit config.php and set the values 
 - edit config.js and set the values
 
+Upgrading
+------------
+- $ cd NagiosTV
+- $ git pull
+- Your customized config files (config.js, config.php) will not be overwritten.
+  You may want to check config.php.dist and config.js.dist for new options
+  until I get around to automating that process
 
+How to show multiple Nagios on one TV
+------------
 To do the four-in-one, you can look at frame-sample.htm included.
 
 TODO
@@ -49,4 +59,6 @@ Features to work on next:
 
 - Fix the ACKed section
 - a config.php page which checks prerequisites on the server side and communicates that down to the client if there is a problem.
+- Improve version number
+- Intelligent auto-updater?
 
