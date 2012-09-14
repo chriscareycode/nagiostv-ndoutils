@@ -3,6 +3,9 @@ NagiosTV
 
 Watch one or more Nagios servers on a wall mounted TV (or your desktop)
 
+New items slide in and out of place with animations.
+Hosts and services are clickable to jump to the Nagios web interface
+
 - Client Side: HTML5, Javascript, jQuery, EmberJS, Twitter Bootstrap
 - Server Side: PHP, MySQL
 - Data transfer: AJAX, JSON
