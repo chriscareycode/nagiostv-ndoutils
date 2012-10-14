@@ -192,7 +192,7 @@ function emberStart() {
                         
                             // search for a existing record
                             found = false;
-                            newRes = resultData[i];
+                            newRes = resultdata[i];
 
                             for(var j=0;j<current.length;j++) {
                                 cachedRes = current[j];
