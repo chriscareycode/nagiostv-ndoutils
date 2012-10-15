@@ -221,6 +221,10 @@ function emberStart() {
                         if (resultdata.length === 0) {
 
                             $('.currentitem').slideUp('slow', function(){
+
+                                current.forEach(function(e) {
+                                  if (e && e.softcountdown) clearInterval(e.softcountdown);
+                                });
                                 current.clear();
                             });
 
@@ -252,6 +256,8 @@ function emberStart() {
                     // private helper function
                     function _removeAndAnimate(idx) {
                         $('#current-'+current[idx].servicestatus_id).slideUp('slow', function(){
+
+                                if (current[idx] &&current[idx] &&  current[idx].softcountdown) clearInterval(current[idx].softcountdown);
                                 //App.log('updateCurrent() before removeAt():');
                                 //App.log(current);
                                 current.removeAt(idx);
