@@ -182,19 +182,26 @@ function emberStart() {
                             current[j].set('found', 0);
                         }
                         
+
+                        // aliases to keep inner loop fast
+                        var cachedRes, newRes, found; 
+
                         // We can't just blindly replace all the data. Thats sloppy as hell yo
                         // loop through the returned data and take a look at what we've got
                         for(var i=0;i<resultdata.length;i++) {
                         
                             // search for a existing record
-                            var found = false;
+                            found = false;
+                            newRes = resultData[i];
+
                             for(var j=0;j<current.length;j++) {
-                                if (current[j].servicestatus_id === resultdata[i].servicestatus_id) {
-                                    current[j].set('state_type', resultdata[i].state_type);
-                                    current[j].set('current_state', resultdata[i].current_state);
-                                    current[j].set('next_check', resultdata[i].next_check);
-                                    current[j].set('output', resultdata[i].output);
-                                    current[j].set('found', 1);
+                                cachedRes = current[j];
+                                if (cachedRes.servicestatus_id === newRes.servicestatus_id) {
+                                    cachedRes.set('state_type', newRes.state_type);
+                                    cachedRes.set('current_state', newRes.current_state);
+                                    cachedRes.set('next_check', newRes.next_check);
+                                    cachedRes.set('output', newRes.output);
+                                    cachedRes.set('found', 1);
                                     found = true;
                                 }
                             }                
@@ -204,7 +211,7 @@ function emberStart() {
                                 //App.log(resultdata[i]);
                                 
                                 // add this new item into the current array
-                                current.pushObject( App.Item.create(resultdata[i]) );
+                                current.pushObject( App.Item.create(newRes) );
 
                             }
                         }
@@ -228,19 +235,7 @@ function emberStart() {
                             
                                 if (current[j].get('found') === 0) {
                                     //App.log('updateCurrent() Erasing index '+j+ ' current length is '+current.length);
-                                    
-                                    $('#current-'+current[j].servicestatus_id).slideUp('slow', function(){
-                                        
-                                        try {
-                                            //App.log('updateCurrent() before removeAt():');
-                                            //App.log(current);
-                                            current.removeAt(j);
-
-                                        } catch(err) {
-                                            App.log('updateCurrent() removeAt() Error: '+err);
-                                            //App.log(current);
-                                        }
-                                    });
+                                    _removeAndAnimate(j);
                                 } else {
                                     //App.log('updateCurrent() Item found at index '+j+'. Nothing to erase from current.');
                                 }
@@ -253,10 +248,20 @@ function emberStart() {
                         // Kick off the countdown again (which runs the bar chart and/or any other animations)        
                         that.startCountdown(App.mainView);
                     }
-                }
+
+                    // private helper function
+                    function _removeAndAnimate(idx) {
+                        $('#current-'+current[idx].servicestatus_id).slideUp('slow', function(){
+                                //App.log('updateCurrent() before removeAt():');
+                                //App.log(current);
+                                current.removeAt(idx);
+                            });
+                    }
+
+                } // end success
             });
         },
-        
+
         updateAcked: function() {
             
             var that = this;
