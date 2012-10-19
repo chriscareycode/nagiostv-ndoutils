@@ -223,6 +223,8 @@ function emberStart() {
                             $('.currentitem').slideUp('slow', function(){
 
                                 current.forEach(function(e) {
+                                  console.info('foreach clearInterval '+e);
+                                  console.info('foreach clearInterval '+e.softcountdown);
                                   if (e && e.softcountdown) clearInterval(e.softcountdown);
                                 });
                                 current.clear();
@@ -257,7 +259,7 @@ function emberStart() {
                     function _removeAndAnimate(idx) {
                         $('#current-'+current[idx].servicestatus_id).slideUp('slow', function(){
 
-                                if (current[idx] &&current[idx] &&  current[idx].softcountdown) clearInterval(current[idx].softcountdown);
+                                if (current[idx] && current[idx].softcountdown) clearInterval(current[idx].softcountdown);
                                 //App.log('updateCurrent() before removeAt():');
                                 //App.log(current);
                                 current.removeAt(idx);
@@ -383,6 +385,9 @@ function emberStart() {
                             
                             var newhistoryarray = oldhistoryarray.concat(temphistoryarray);
                             //var newhistoryarray = temphistoryarray.concat(oldhistoryarray);
+                            
+
+
                             newhistoryarray.reverse(); 
                                                         
                             for(var j=0;j<newhistoryarray.length;j++) {
@@ -392,8 +397,16 @@ function emberStart() {
                             //if (typeof(newhistoryarray) !== "undefined" && newhistoryarray.length > 0) {
                             newhistoryarray[0].set('first', true);
                             //}
+
+                            // erase any history more than the maxCountNotification
+                            //
+                            //
+                            for(var j=maxCountNotification;j<newhistoryarray.length;j++) {
+                              console.info("Erasing extra history item "+j+".");
+                              newhistoryarray.removeAt(j);
+                            }
                             
-                                    
+
                             that.set('history', newhistoryarray);  // need to appendChild
                         }
                     }
@@ -619,7 +632,8 @@ function emberStart() {
             
             that.set('softtimerPercent','100');
             that.softcountdown = setInterval(function(){
-            
+           
+                
                 var pct = ((count-1) / origcount)*100;
                 that.set('softtimerPercent',pct);
                 
@@ -632,7 +646,6 @@ function emberStart() {
                 count--;
             }, 1000);
         },
-
 
 
 
