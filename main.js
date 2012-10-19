@@ -679,7 +679,8 @@ function emberStart() {
                
             if (content.state_type === "0") {
 
-                this.startsoftCountdown();
+                // TODO: fix and re-enable this
+                //this.startsoftCountdown();
 
                 return "SOFT";
             } else if(content.state_type === "1") {
