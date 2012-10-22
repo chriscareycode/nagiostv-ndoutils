@@ -45,7 +45,7 @@
 
 <script type="text/x-handlebars" data-template-name="bar-chart"> 
 <div class="wait graybg" style="margin-top:20px;opacity:1;">
-    <div style="position:absolute;left:4px;font-size:14px;margin-bottom:5px;color:white;">Refresh every 10 seconds</div>
+    <div style="position:absolute;left:4px;font-size:14px;margin-bottom:5px;color:#999;">Refresh every 10 seconds</div>
     <div class="progress" style="margin-bottom:5px;color:#fff;">
         <div {{bindAttr class="bgColor :bar"}} {{bindAttr style="timerWidth"}}></div>
     </div>
@@ -64,9 +64,23 @@
     
     {{#if App.currentController.versionMismatch}}
     <div class="versionMismatch" style="">
-    <span style="font-size:14px;">Version Mismatch: Current: {{App.currentController.versionCurrent}} Latest: {{App.currentController.versionLatest}}</span>
+    <span style="font-size:14px;color:red;">Software out of date: Current: {{App.currentController.version}} Latest: {{App.currentController.versionServer}}</span><br />
+    <span style="font-size:14px;color:red;">Upgrade instructions: <a href="https://github.com/chriscareycode/NagiosTV#upgrading" target="_blank">https://github.com/chriscareycode/NagiosTV#upgrading</a></span>
+    </div>
+    {{else}}
+    <div class="versionMismatch" style="">
+    <span style="font-size:14px;">Version Info: Current: {{App.currentController.version}} Latest: {{App.currentController.versionServer}}</span>
     </div>
     {{/if}}
+
+    <div id="remoteTimeDiv" class="remoteTimeDiv" style="font-weight:bold;">
+        Remote Time: {{App.currentController.remoteTime}}
+    </div>
+   
+  <div id="clockinfo" style="display:none;">
+    <div style="margin-left:5px;font-size:14px;">
+        <span style="font-size:14px;">Remote Time Zone: <span id="remoteTimeZone">{{App.currentController.remoteTimeZone}}</span></span>
+    </div>
 
     <div class="localTimeDiv" style="font-weight:bold;">
         Local Time: <span id="localTime">00:00:00</span>
@@ -74,18 +88,12 @@
     
     <div style="margin-left:5px;font-size:14px;">Local Time Zone: <span id="localTimeZone">{{App.currentController.localTimeZone}}</span></div>
     
-    <div class="remoteTimeDiv" style="font-weight:bold;">
-        Remote Time: {{App.currentController.remoteTime}}
-        
-    </div>
-    
-    <div style="margin-left:5px;font-size:14px;">
-        <span style="font-size:14px;">Remote Time Zone: <span id="remoteTimeZone">{{App.currentController.remoteTimeZone}}</span></span>
-    </div>
     
     <div class="diffTimeDiv" style="">
     <span style="font-size:14px;">Time Difference: {{App.currentController.timeZoneDiffHours}} hours</span>
     </div>
+  </div>
+<div style="margin-bottom:5px;"></div>
     
     {{#if currentDisconnected}}
         {{view App.currentDisconnectedView}}
@@ -237,7 +245,7 @@
     </span>
     
     
-    
+    <div class="eventDetail" style="display:none;">
     {{#if view.isSoft}}
         <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} WARN @ {{last_state_change}}</div>
         <div>{{view.stateTypeName}} WARN for {{view.downFor}}</div>
@@ -245,11 +253,8 @@
         <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} DOWN @ {{last_state_change}}</div>
         <div>{{view.stateTypeName}} DOWN for {{view.downFor}}</div>
     {{/if}}
-    
-    
-    
-    <div>NEXT CHECK @ {{next_check}}</div>
-    
+      <div>NEXT CHECK @ {{next_check}}</div>
+    </div>
     
     {{#if view.isSoft}}
     <div class="progress" style="margin-top:5px;margin-bottom:5px;color:#fff;">

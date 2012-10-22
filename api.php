@@ -8,7 +8,7 @@
     function doCheckVersion($version) {
                 
         $post_data = "version=".$version;
-        $page = "/software/nagiostv/version/";
+        $page = "/software/nagiostv/version/json/";
         $url = "http://chriscarey.com".$page;
         $headers = array(
             "POST ".$page." HTTP/1.0",
@@ -85,8 +85,9 @@
         case "versioncheck":
        
            $latest_version = doCheckVersion($client_version);
-           $json_version = array('version'=>$latest_version);
-           print json_encode($json_version);
+           //$latest_version = json_encode($latest_version);
+          // $json_version = array('result'=>$latest_version);
+           print json_encode($latest_version);
            exit;
            break;
 	       

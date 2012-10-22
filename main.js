@@ -35,8 +35,10 @@ function emberStart() {
         history: [],
         
         versionMismatch: false,
-        versionCurrent: '0.3',
-        versionLatest: '',
+        version: '4',
+        versionString:'0.4',
+        versionServer: '',
+        versionStringServer: '',
 
         versionCheck: function() {
 
@@ -58,14 +60,18 @@ function emberStart() {
                 },
                 success: function(data){
                     
+                    //App.log('success, ');
                     //App.log(data);
+                    var jsondata = eval('(' + data + ')');
+                    //App.log(jsondata);
 
-                    that.set('versionLatest', data.version);
+                    that.set('versionServer', jsondata.version);
+                    that.set('versionStringServer', jsondata.version_string);
 
-                    if (data.version != that.get('versionCurrent')) {
+                    if (jsondata.version > that.get('version')) {
 
                         that.set('versionMismatch', true);
-                        App.log('versionCheck() Version mismatch. Client has '+that.get('versionCurrent')+' and latest version is '+data.version);
+                        App.log('versionCheck() out of date. Client has '+that.get('versionCurrent')+' and latest version is '+jsondata.version_string);
                     }
                 }
             });
@@ -505,10 +511,29 @@ function emberStart() {
             if (config_icon) {
                 $('#config_icon').attr('src', config_icon);
             }
-    
-    
+   
+            /*
+            $('#remoteTimeDiv').click(function(){
+                $('#clockinfo').slideToggle();
+            });
+            */
+            
+            $('#remoteTimeDiv').hover(
+              function(){
+                //in
+                //console.info('here');
+                $('#clockinfo').slideDown();
+              },
+              function(){
+                //out
+                $('#clockinfo').slideUp();
+            });
+            
         }
+
     });
+
+
     App.mainView.appendTo('#col1');
     
     
@@ -651,6 +676,7 @@ function emberStart() {
 
         click: function() {
             App.log('currentItemView() click()');
+            this.$().find('.eventDetail').slideToggle();
         },
                 
         currentStateClass: function() {
@@ -813,5 +839,6 @@ $(document).ready(function(){
     setInterval("App.currentController.updateHistory()", refreshNotification * 1000);
     
     setInterval("updateTime()", 1000);
+
 
 });
