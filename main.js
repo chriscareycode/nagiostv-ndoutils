@@ -71,7 +71,10 @@ function emberStart() {
                     if (jsondata.version > that.get('version')) {
 
                         that.set('versionMismatch', true);
-                        App.log('versionCheck() out of date. Client has '+that.get('versionCurrent')+' and latest version is '+jsondata.version_string);
+                        App.log('versionCheck() out of date. Client has '+that.get('version')+' and latest version is '+jsondata.version);
+                    } else {
+                        App.log('versionCheck() up to date. Client has '+that.get('version')+' and latest version is '+jsondata.version);
+
                     }
                 }
             });
@@ -461,7 +464,6 @@ function emberStart() {
         }
     });
     
-    App.currentController.versionCheck();
 
     App.mainView = Ember.View.create({
         
@@ -802,33 +804,27 @@ function updateTime() {
 
 $(document).ready(function(){
 
-
+    // Init the TimeZone libraries
     timezoneJS.timezone.zoneFileBasePath = 'lib/timezone-js/tz';
     timezoneJS.timezone.init();
-
 
     // This hides the jQuery warning
     $('#jquery-test').hide();
     
-    
-    
-    /*
-    var now = new Date();
-    var hours = now.getHours(); if (hours < 10) hours = '0'+hours;
-    var minutes = now.getMinutes(); if (minutes < 10) minutes = '0'+minutes;
-    var seconds = now.getSeconds(); if (seconds < 10) seconds = '0'+seconds;
-    datePageLoad = hours +':'+ minutes +':'+ seconds;
-    */
-    
+    // Load up the EmberJS framework
     emberStart();
-    
+
+    // Version Check
+    App.currentController.versionCheck();
+   
+    // Some welcome console info
     App.log('Welcome to Nagios Stats.');
     App.log('Current refresh is set to '+refreshCurrent+' seconds');
     App.log('Acked refresh is set to '+refreshAcked+' seconds');
     App.log('History refresh is set to '+refreshNotification+' seconds');
     
     
-    
+    // Kick off the update timers
     App.currentController.updateCurrent(); // Update current Now
     setInterval("App.currentController.updateCurrent()", refreshCurrent * 1000); // Update page every n seconds
     
@@ -839,6 +835,5 @@ $(document).ready(function(){
     setInterval("App.currentController.updateHistory()", refreshNotification * 1000);
     
     setInterval("updateTime()", 1000);
-
 
 });
