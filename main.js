@@ -35,8 +35,8 @@ function emberStart() {
         history: [],
         
         versionMismatch: false,
-        version: '4',
-        versionString:'0.4',
+        version: '5',
+        versionString:'0.5',
         versionServer: '',
         versionStringServer: '',
 
