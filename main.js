@@ -54,9 +54,18 @@ function emberStart() {
                 data: "func=versioncheck&client_version="+that.get('versionCurrent'),
                 dataType: "json",
                 timeout: 5000,
-                error: function(data) {
+                error: function(data1, data2) {
                     App.log('versionCheck() Error getting version');
-                    //App.log(data);
+                    
+                    var jsondata = eval('(' + data1.responseText + ')');
+
+                    if (jsondata.OK == 0) {
+                        App.log('versionCheck() Error VersionCheck');
+                        $('#disconnected').html(jsondata.ERROR);
+                    }
+                    
+                    cancelTimers();
+                    
                 },
                 success: function(data){
                     
@@ -65,6 +74,10 @@ function emberStart() {
                     var jsondata = eval('(' + data + ')');
                     //App.log(jsondata);
 
+                    if (jsondata.OK == 0) {
+                        App.log('versionCheck() Error VersionCheck');
+                    }
+                    
                     that.set('versionServer', jsondata.version);
                     that.set('versionStringServer', jsondata.version_string);
 
@@ -520,6 +533,7 @@ function emberStart() {
             });
             */
             
+            /*
             $('#remoteTimeDiv').hover(
               function(){
                 //in
@@ -530,6 +544,7 @@ function emberStart() {
                 //out
                 $('#clockinfo').slideUp();
             });
+            */
             
         }
 
@@ -800,7 +815,17 @@ function updateTime() {
     //$('#localTime').html(new Date().toString());
 }
 
+function cancelTimers() {
 
+    clearTimeout(g_timerCurrent);
+    clearTimeout(g_timerAcked);
+    clearTimeout(g_timerHistory);
+
+}
+
+var g_timerCurrent;
+var g_timerAcked;
+var g_timerHistory;
 
 $(document).ready(function(){
 
@@ -826,13 +851,13 @@ $(document).ready(function(){
     
     // Kick off the update timers
     App.currentController.updateCurrent(); // Update current Now
-    setInterval("App.currentController.updateCurrent()", refreshCurrent * 1000); // Update page every n seconds
+    g_timerCurrent = setInterval("App.currentController.updateCurrent()", refreshCurrent * 1000); // Update page every n seconds
     
     App.currentController.updateAcked();
-    setInterval("App.currentController.updateAcked()", refreshAcked * 1000);
+    g_timerAcked = setInterval("App.currentController.updateAcked()", refreshAcked * 1000);
     
     App.currentController.updateHistory();
-    setInterval("App.currentController.updateHistory()", refreshNotification * 1000);
+    g_timerHistory = setInterval("App.currentController.updateHistory()", refreshNotification * 1000);
     
     setInterval("updateTime()", 1000);
 

@@ -29,7 +29,7 @@
                 <li>
                     <img src="" style="height:30px;position:relative;top:5px;margin-right:4px;" />
                     <span style="font-size:24px;font-weight:bold;color:white;position:relative;top:11px;">
-                    Nagios Monitor 2.0</span>
+                    Nagios Monitor 2.1</span>
                     
                 </li>
                 <!-- li class="active"><a href="#">Home</a></li>
@@ -79,7 +79,7 @@
         Remote Time: {{App.currentController.remoteTime}}
     </div>
    
-  <div id="clockinfo" style="display:none;">
+  <div id="clockinfo" style="display:block;">
     <div style="margin-left:5px;font-size:14px;">
         <span style="font-size:14px;">Remote Time Zone: <span id="remoteTimeZone">{{App.currentController.remoteTimeZone}}</span></span>
     </div>
@@ -172,7 +172,7 @@
 
 <script type="text/x-handlebars" data-template-name="current-disconnected"> 
     <div class="nagalert graybg" style="">
-        <div style="font-size:26px;margin-bottom:5px;color:brown;"> 
+        <div id="disconnected" style="font-size:26px;margin-bottom:5px;color:brown;"> 
             Disconnected From Server
         </div>            
     </div>

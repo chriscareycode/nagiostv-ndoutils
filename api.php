@@ -1,5 +1,18 @@
 <?php
 
+    if (!extension_loaded("curl")) {
+        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+        $fail = array('OK'=>0, 'ERROR'=>'Error: Missing extension php5-curl');
+        print json_encode($fail);
+        exit;
+    }
+    if (!extension_loaded("mysql")) {
+        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+        $fail = array('OK'=>0, 'ERROR'=>'Error: Missing extension php5-mysql');
+        print json_encode($fail);
+        exit;
+    }
+    
     // Includes
 	require_once('config.php');
 	require_once('db.php');
