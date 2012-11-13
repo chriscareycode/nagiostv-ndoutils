@@ -2,7 +2,7 @@
  * 
  * Nagios TV Monitor
  * by Christopher P Carey 2010-12-09
- * Last Modified Aug 11 2012
+ * Last Modified Nov 12 2012
  * 
  * main.js
  *
@@ -757,12 +757,9 @@ function emberStart() {
             var that = this;
             var diffhours = App.currentController.get('timeZoneDiffHours');
             var date1 = new Date(Date.parse(content.last_state_change));
-            //var date1 = new timezoneJS.Date(new Date(Date.parse(content.last_state_change)).toString(), App.currentController.get('localTimeZone'));
+            
             date1.addHours(-diffhours);
-            // set Local Time
-            //var localdate = new timezoneJS.Date(new Date().toString(), App.currentController.get('localTimeZone'));
-
-
+         
             var remotedate = App.currentController.get("remoteTimeObject");
 
             var diff = remotedate - date1;
@@ -800,19 +797,10 @@ function emberStart() {
 
 function updateTime() {
 
-    //var now = new Date();
-    //var hours = now.getHours(); if (hours < 10) hours = '0'+hours;
-    //var minutes = now.getMinutes(); if (minutes < 10) minutes = '0'+minutes;
-    //var seconds = now.getSeconds(); if (seconds < 10) seconds = '0'+seconds;
-    //datePageLoad = hours +':'+ minutes +':'+ seconds;
-    //var str = hours + ':' + minutes + ':' + seconds;
-    //$('#currentTime').html(str);
-    
-    
-    var localdate = new timezoneJS.Date(new Date().toString(), 'America/Los_Angeles');
+    var localdate = new timezoneJS.Date(new Date().toString(), config_timezone);
     
     $('#localTime').html(localdate.toString());
-    //$('#localTime').html(new Date().toString());
+
 }
 
 function cancelTimers() {
