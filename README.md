@@ -44,6 +44,9 @@ Installation
 - edit config.php and set the values 
 - edit config.js and set the values
 
+* Make sure date_default_timezone_set is set in your PHP.ini.
+* date_default_timezone_set('Europe/London');
+
 Upgrading
 ------------
 - $ cd NagiosTV
