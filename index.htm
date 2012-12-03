@@ -95,7 +95,7 @@
     <span style="font-size:14px;">Time Difference: {{App.currentController.timeZoneDiffHours}} hours</span>
     </div>
   </div>
-<div style="margin-bottom:5px;"></div>
+    <div style="margin-bottom:5px;"></div>
     
     {{#if currentDisconnected}}
         {{view App.currentDisconnectedView}}
@@ -111,35 +111,20 @@
     
     <div id="barAreaCurrent"></div>
 
-    {{#unless acked}}
-    <div class="nagalert graybg" style="display:none;">
-        <div style="font-size:22px;margin-bottom:5px;color:lime;">No ACKed services</div>            
-    </div>    
-    {{/unless}}
-    
-    {{#if App.currentController.acked}}
-    <div class="section" style="display:none;">ACKed</div>
-    {{#each App.currentController.acked}}
-    
-    <div id="acked-{{servicestatus_id}}" class="graybg nagalert" style="display:block;">
-        <span class="datetime">
-        <span style="color:lime;">(</span>{{status_update_time}}<span style="color:lime;">)</span>
-        </span>
-        
-        {{#if name1}}
-        <span class="alertname1">[<a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{name1}}">{{name1}}</a>]</span>
-        {{/if}}
-        {{#if name2}}
-        <span class="alertname2">[<a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{name1}}&service={{name2}}">{{name2}}</a>]</span>
-        {{/if}}
-        
-        <br /><span class="state{{current_state}}">{{output}}</span>
+    <div class="section" style="margin-bottom:5px;">ACKed Services
+        <span id="acked-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
     </div>
     
-    {{/each}}
+    {{#if ackedEmpty}}
+        {{view App.ackedOkView}}   
     {{/if}}
     
-    <div class="section" style="">Notification History
+    {{#each App.currentController.acked}}
+        {{view App.ackedItemView contentBinding="App.currentController"}} 
+    {{/each}}
+    
+    
+    <div class="section" style="margin-top:10px;">Notification History
         <span id="notifications-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
     </div>
 
@@ -170,6 +155,14 @@
     </div>
 </script>
 
+<script type="text/x-handlebars" data-template-name="acked-ok"> 
+    <div class="nagalert graybg" style="">
+        <div style="font-size:26px;margin-bottom:5px;color:lime;"> 
+            No ACKed services
+        </div>            
+    </div>
+</script>
+
 <script type="text/x-handlebars" data-template-name="current-disconnected"> 
     <div class="nagalert graybg" style="">
         <div id="disconnected" style="font-size:26px;margin-bottom:5px;color:brown;"> 
@@ -177,6 +170,10 @@
         </div>            
     </div>
 </script>
+
+<!-- ============================================== -->
+<!-- History Item                                   -->
+<!-- ============================================== -->
 
 <script type="text/x-handlebars" data-template-name="history-item">  
 
@@ -226,12 +223,65 @@
     
 </script>
 
+<!-- ============================================== -->
+<!-- Current Item                                   -->
+<!-- ============================================== -->
+
 <script type="text/x-handlebars" data-template-name="current-item">  
     
-    <div id="current-{{unbound servicestatus_id}}" class="graybg nagalert critical currentitem" style="display:block;">
+    <div id="current-{{unbound servicestatus_id}}" class="graybg nagalert critical currentitem border{{unbound view.currentStateClass}}" style="display:block;">
+    
+    {{status_update_time}}
+    
+    {{#if name2}}
+    <span class="alertname2"><a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{unbound name1}}&service={{unbound name2}}">{{name2}}</a></span>
+    {{/if}}
+    on
+    {{#if name1}}
+    <span class="alertname1"><a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{unbound name1}}">{{name1}}</a></span>
+    {{/if}}
+    
+    <br />
+    <span {{bindAttr class="view.currentStateClass"}} style="">
+    {{output}}
+    </span>
     
     
+    <div class="eventDetail" style="display:none;">
+    {{#if view.isSoft}}
+        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} WARN @ {{last_state_change}}</div>
+        <div>{{view.stateTypeName}} WARN for {{view.downFor}}</div>
+    {{else}}
+        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} DOWN @ {{last_state_change}}</div>
+        <div>{{view.stateTypeName}} DOWN for {{view.downFor}}</div>
+    {{/if}}
+      <div>NEXT CHECK @ {{next_check}}</div>
+    </div>
     
+    {{#if view.isSoft}}
+    <div class="progress" style="margin-top:5px;margin-bottom:5px;color:#fff;">
+        <div {{bindAttr class="view.bgColor :bar"}} {{bindAttr style="view.softtimerWidth"}}>
+            <span style="color:black">Soft Warning</span>
+        </div>
+    </div>
+    {{else}}
+    {{/if}}
+
+    
+    
+    </div>
+</script>
+
+<!-- ============================================== -->
+<!-- Acked Item                                   -->
+<!-- ============================================== -->
+
+<script type="text/x-handlebars" data-template-name="acked-item"> 
+
+    <div id="acked-{{unbound servicestatus_id}}" class="graybg nagalert critical ackeditem border{{unbound view.currentStateClass}}" style="display:block;">
+    
+    
+    {{status_update_time}}
     
     {{#if name2}}
     <span class="alertname2"><a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{unbound name1}}&service={{unbound name2}}">{{name2}}</a></span>

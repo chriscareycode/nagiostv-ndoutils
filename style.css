@@ -146,16 +146,18 @@ div.nagalert {
     color:#fff;
     text-align:left;
 }
-div.nagalert:hover {
-    background: #555;
-}
+
 
 .allgood {
     font-size:26px;
 }
-.critical {
+.warning {
     font-size:20px;
     border:1px solid yellow;
+}
+.critical {
+    font-size:20px;
+    /* border:1px solid #FF7256; */
 }
 .notification {
     font-size:14px;
@@ -174,6 +176,17 @@ span.alertname2 a {
 }
 span.datetime {
     color:#fff;
+}
+
+/* state colors */
+.borderstate2 {
+    border:1px solid #FF7256;
+}
+.borderstate1 {
+    border:1px solid yellow;
+}
+.borderstate0 {
+    border:1px solid lime;
 }
 
 /* state colors */

@@ -18,7 +18,7 @@ class DB {
     function connect() {
         $this->link = mysql_connect($this->my_host, $this->my_user, $this->my_pass);
 		if (!$this->link) {
-			printf("Error: Connection to MySQL server '%s' failed.<BR>\n", $this->my_host);
+			printf("Error: Connection to MySQL server '%s' as user '%s' failed.<BR>\n", $this->my_host, $this->my_user);
 			return;
 		} 
     }

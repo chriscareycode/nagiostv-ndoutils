@@ -8,11 +8,14 @@
  * config.php
  * change these values for your own database. Save the file as 'config.php'
  *
+ * 2012-12-02 added $g_timezone. Copy this value into your config.php
+ *
  ******************************************************************************/
  
 $g_db_host = 'localhost'; // database host
 $g_db_name = 'ndoutils'; // database name
 $g_db_user = 'ndoutils'; // database username
 $g_db_pass = 'cHanGeMe===='; // database password
+$g_timezone = "America/Los_Angeles"; // server timezone - same as config.js
 
 ?>

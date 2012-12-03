@@ -1,11 +1,27 @@
 <?php
 
+    // Includes (Part 1)
+    require_once('config.php');
+    
+    // This must be set here or in php.ini. Until such time that I can detect this…
+    if (!isset($g_timezone)) {
+        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+        $fail = array('OK'=>0, 'ERROR'=>'Error: Must set default timezone. Check config.php.dist');
+        print json_encode($fail);
+        exit;
+    }
+    
+    date_default_timezone_set($g_timezone);
+    
+    // check for curl extension
     if (!extension_loaded("curl")) {
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
         $fail = array('OK'=>0, 'ERROR'=>'Error: Missing extension php5-curl');
         print json_encode($fail);
         exit;
     }
+    
+    // check for mysql extension
     if (!extension_loaded("mysql")) {
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
         $fail = array('OK'=>0, 'ERROR'=>'Error: Missing extension php5-mysql');
@@ -13,8 +29,7 @@
         exit;
     }
     
-    // Includes
-	require_once('config.php');
+    // Includes (Part 2)
 	require_once('db.php');
 
     // Functions

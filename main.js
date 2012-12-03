@@ -9,7 +9,7 @@
  ******************************************************************************/
 
 var refreshCurrent = 10; // in seconds
-var refreshAcked = 31; // in seconds
+var refreshAcked = 11; // in seconds
 var refreshNotification = 16; // in seconds
 
 var maxCountNotification = 30;
@@ -57,12 +57,14 @@ function emberStart() {
                 error: function(data1, data2) {
                     App.log('versionCheck() Error getting version');
                     
+                    /*
                     var jsondata = eval('(' + data1.responseText + ')');
 
                     if (jsondata.OK == 0) {
                         App.log('versionCheck() Error VersionCheck');
                         $('#disconnected').html(jsondata.ERROR);
                     }
+                    */
                     
                     cancelTimers();
                     
@@ -151,8 +153,19 @@ function emberStart() {
                 data: "func=current",
                 dataType: "json",
                 timeout: 5000,
-                error: function(data) {
+                error: function(data1, data2) {
                     that.set('currentDisconnected', true);
+                    
+                    
+                    var jsondata = eval('(' + data1.responseText + ')');
+
+                    if (jsondata.OK == 0) {
+                        App.log('updateCurrent() JSON Error');
+                        $('#disconnected').html(jsondata.ERROR);
+                    }
+                    
+                    cancelTimers();
+                    
                 },
                 success: function(data){
                     
@@ -298,7 +311,7 @@ function emberStart() {
             
             //TODO: fix ACKed. Its broken right now.
             
-            //$('#current-spinner').show();
+            $('#acked-spinner').show();
             
             // request the page
             $.ajax({
@@ -308,19 +321,123 @@ function emberStart() {
                 dataType: "json",
                 success: function(data){
         
-                    //$('#current-spinner').fadeOut('slow');
+                    App.log('updateAcked() success');
+                    App.log(data);
+                    
+        
+                    //that.set('currentDisconnected', false);
+                    
+                    $('#acked-spinner').fadeOut('slow');
                     
                     if (data) {
-                    
+                        
                         var metadata = data[0];
-                        var resultdata = data[1];
+                        var resultdata = data[1]["result"];
+                        
+                        App.log('updateAcked() resultdata.length is '+resultdata.length);
+                        
+                        if (!resultdata) {
+                            return;
+                        }
                         
                         
-                        //App.log('acked set');
-                        //App.log(typeof(acked));
+                    
+                        // grab the current list of items
+                        var acked = that.get('acked');
+                        App.log('updateAcked() acked.length is '+acked.length);
                         
+                        // create an ember array if one does not exist
+                        if (typeof(acked) === "undefined") acked = Ember.MutableArray();
                         
-                        //App.currentController.set('acked', resultdata);
+                        // set the found bit on each item to 0. we will check for this bit later
+                        // to compare the existing list of items against the one the server sends down
+                        for(var j=0;j<acked.length;j++) {
+                            App.log('updateAcked() setting found to 0 on item '+j);
+                            acked[j].set('found', 0);
+                        }
+                        
+
+                        // aliases to keep inner loop fast
+                        var cachedRes, newRes, found; 
+
+                        // We can't just blindly replace all the data. Thats sloppy as hell yo
+                        // loop through the returned data and take a look at what we've got
+                        for(var i=0;i<resultdata.length;i++) {
+                        
+                            // search for a existing record
+                            found = false;
+                            newRes = resultdata[i];
+
+                            for(var j=0;j<acked.length;j++) {
+                                cachedRes = acked[j];
+                                if (cachedRes.servicestatus_id === newRes.servicestatus_id) {
+                                    cachedRes.set('state_type', newRes.state_type);
+                                    cachedRes.set('current_state', newRes.current_state);
+                                    cachedRes.set('next_check', newRes.next_check);
+                                    cachedRes.set('output', newRes.output);
+                                    cachedRes.set('found', 1);
+                                    found = true;
+                                }
+                            }                
+                            if (!found) {
+                                // item was returned and it was not found. lets add it into the array of items
+                                App.log('updateAcked() new item');
+                                App.log(resultdata[i]);
+                                
+                                // add this new item into the current array
+                                acked.pushObject( App.Item.create(newRes) );
+
+                            }
+                        }
+                        
+                        // If the server returns nothing, lets clear the items out all at once. 
+                        // Fixes the delayed All services are UP bug
+                        if (resultdata.length === 0) {
+
+                            $('.ackeditem').slideUp('slow', function(){
+
+                                acked.forEach(function(e) {
+                                  console.info('foreach clearInterval '+e);
+                                  console.info('foreach clearInterval '+e.softcountdown);
+                                  if (e && e.softcountdown) clearInterval(e.softcountdown);
+                                });
+                                acked.clear();
+                            });
+
+                        }
+
+                        // erase any items which were not returned
+                        if (resultdata.length > 0 && typeof(acked) !== "undefined") {
+
+                            for(var j=acked.length-1;j>=0;j--) {
+                                
+                                App.log('updateAcked() Searching for found=0. acked length is '+acked.length+'. index '+j+' - found:'+acked[j].get('found'));
+                            
+                                if (acked[j].get('found') === 0) {
+                                    App.log('updateAcked() Erasing index '+j+ ' acked length is '+acked.length);
+                                    _removeAndAnimate(j);
+                                } else {
+                                    App.log('updateAcked() Item found at index '+j+'. Nothing to erase from acked.');
+                                }
+                            }
+                        }
+                        
+                        // set the new current array back into the controller
+                        that.set('acked', acked);
+                        
+                        // Kick off the countdown again (which runs the bar chart and/or any other animations)        
+                        //that.startCountdown(App.mainView);
+                    }
+
+                    // private helper function
+                    function _removeAndAnimate(idx) {
+                        $('#acked-'+acked[idx].servicestatus_id).slideUp('slow', function(){
+
+                                if (acked[idx] && acked[idx].softcountdown) clearInterval(acked[idx].softcountdown);
+                                //App.log('updateCurrent() before removeAt():');
+                                //App.log(current);
+                                acked.removeAt(idx);
+                            });
                     }
                 }
             });
@@ -508,6 +625,14 @@ function emberStart() {
             }
         }.property("App.currentController.current.length"),
         
+        ackedEmpty: function() {
+            App.log('ackedEmpty() '+App.currentController.acked.length);
+            if (App.currentController.acked.length > 0) {
+                return false;
+            } else {
+                return true;
+            }
+        }.property("App.currentController.acked.length"),
         
         
         timerPercent:100,
@@ -590,6 +715,15 @@ function emberStart() {
        tagName: 'div',
         classNames: ['displayNone'],
         templateName: 'current-disconnected',
+        didInsertElement: function() { 
+            this.$().slideDown('slow');
+        }
+    });
+    
+    App.ackedOkView = Ember.View.extend({
+       tagName: 'div',
+        classNames: ['displayNone'],
+        templateName: 'acked-ok',
         didInsertElement: function() { 
             this.$().slideDown('slow');
         }
@@ -793,6 +927,97 @@ function emberStart() {
             this.$().slideDown('slow');
         }
     });
+    
+    App.ackedItemView = Ember.View.extend({
+
+        tagName: 'div',
+        classNames: ['displayNone'],
+        templateName: 'acked-item',
+
+
+        softtimerPercent:100,
+        softtimerWidth: function() {
+            return "width:"+this.softtimerPercent+"%";
+        }.property("softtimerPercent"),
+
+        bgColor: function() {
+        
+            //return "bggreen";
+            return "bgyellow";
+            //return "bgred";
+            
+        }.property(),
+
+        
+
+
+
+        click: function() {
+            App.log('ackedItemView() click()');
+            this.$().find('.eventDetail').slideToggle();
+        },
+                
+        currentStateClass: function() {
+          
+            var content = this.bindingContext;
+
+            var current_state = content.current_state;
+            
+            App.log('ackedItemView() currentStateClass() current_state '+current_state);
+            
+            if (current_state === "1") {
+                return "state1";
+            } else if(current_state === "2") {
+                return "state2";
+            } else {
+                return "state";
+            }
+            
+        }.property('this.bindingContext.current_state'),
+        
+        stateTypeName: function() {
+        
+            var content = this.bindingContext;
+            
+            App.log('ackedItemView() stateTypeName state_type '+content.state_type);
+               
+            if (content.state_type === "0") {
+
+                // TODO: fix and re-enable this
+                //this.startsoftCountdown();
+
+                return "SOFT";
+            } else if(content.state_type === "1") {
+                return "HARD";
+            } else {
+                return "UNKNOWN";
+            }
+            
+        }.property('this.bindingContext.state_type'),
+        
+        isSoft: function() {
+        
+            var content = this.bindingContext;
+         
+            App.log('ackedItemView() isSoft state_type '+content.state_type);
+            
+            if (content.state_type === "0") {
+                return true;
+            } else if(content.state_type === "1") {
+                return false;
+            } else {
+                return false;
+            }
+            
+        }.property('this.bindingContext.state_type'),
+        
+                
+        didInsertElement: function() {
+            
+            this.$().slideDown('slow');
+        }
+    });
+
 }
 
 function updateTime() {
