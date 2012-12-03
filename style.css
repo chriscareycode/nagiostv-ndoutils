@@ -188,6 +188,9 @@ span.datetime {
 .borderstate0 {
     border:1px solid lime;
 }
+.borderstate {
+    border:1px solid #aaa;
+}
 
 /* state colors */
 .state2 {

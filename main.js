@@ -9,7 +9,7 @@
  ******************************************************************************/
 
 var refreshCurrent = 10; // in seconds
-var refreshAcked = 11; // in seconds
+var refreshAcked = 31; // in seconds
 var refreshNotification = 16; // in seconds
 
 var maxCountNotification = 30;
