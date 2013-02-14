@@ -636,7 +636,11 @@ function emberStart() {
         
         
         timerPercent:100,
+
         timerWidth: function() {
+            return "width:100%";
+        }.property("timerPercent"),
+        timerWidthDisabled: function() {
             return "width:"+this.timerPercent+"%";
         }.property("timerPercent"),
 
@@ -687,6 +691,9 @@ function emberStart() {
         
         timerPercent:100,
         timerWidth: function() {
+            return "width:100%";
+        }.property("App.mainView.timerPercent"),
+        timerWidthDisabled: function() {
             return "width:"+App.mainView.get('timerPercent')+"%";
         }.property("App.mainView.timerPercent"),
         
