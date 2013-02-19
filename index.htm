@@ -6,19 +6,14 @@
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Expires" CONTENT="-1">
 <title>NagiosTV</title>
-
 <link href="lib/bootstrap/css/bootstrap.css" rel="stylesheet">
-
+<link rel="icon" href="images/favicon.ico" type="image/x-icon" /> 
 <link rel="stylesheet" type="text/css" href="style.css">
 <style type="text/css">
-    body {
-        line-height: normal;        
-        background-color: #000;
-        color:#fff;
-    }
+    
 </style>
 
-<link rel="icon" href="images/favicon.ico" type="image/x-icon" /> 
+
 </head>
 <body>
 
@@ -30,18 +25,30 @@
                     <img src="" style="height:30px;position:relative;top:5px;margin-right:4px;" />
                     <span style="font-size:24px;font-weight:bold;color:white;position:relative;top:11px;">
                     Nagios Monitor 2.1</span>
-                    
                 </li>
-                <!-- li class="active"><a href="#">Home</a></li>
-                <li><a href="#">Link</a></li>
-                <li><a href="#">Link</a></li -->
             </ul>
         </div>
     </div>
 </div>
 
 
-
+<script type="text/x-handlebars"> 
+<div class="wait graybg" style="display:none;margin-top:20px;opacity:1;">
+	My FIRST TEMPLATE<br />
+	
+	Hello, <strong>{{firstName}} {{lastName}}</strong>!
+	
+	<div>
+	{{#linkTo "index"}}index{{/linkTo}}
+	
+	<nav>
+	{{#linkTo "about"}}About{{/linkTo}}
+	{{#linkTo "detail"}}Detail{{/linkTo}}
+	</nav>
+	
+	</div>
+</div>
+</script>
 
 
 
@@ -55,72 +62,88 @@
 </div>
 </script>
 
-<script type="text/x-handlebars" data-template-name="main-view"> 
+
+<script type="text/x-handlebars" data-template-name="main-view">
  
- 
-    <div class="environment">
+		<div class="environment">
         <img id="config_icon" style="height:25px;width:25px;position:relative;top:-3px;" />
-        {{name}}
-        <span id="current-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
+        {{App.applicationController.name}}
+        
     </div>
     
-    {{#if App.currentController.versionMismatch}}
+    {{#if App.applicationController.versionMismatch}}
     <div class="versionMismatch" style="">
-    <span style="font-size:14px;color:red;">Software out of date: Current: {{App.currentController.version}} Latest: {{App.currentController.versionServer}}</span><br />
+    <span style="font-size:14px;color:red;">Software out of date: Current Build: {{App.applicationController.version}} Latest: {{App.applicationController.versionServer}}</span><br />
     <span style="font-size:14px;color:red;">Upgrade instructions: <a href="https://github.com/chriscareycode/NagiosTV#upgrading" target="_blank">https://github.com/chriscareycode/NagiosTV#upgrading</a></span>
     </div>
     {{else}}
     <div class="versionMismatch" style="">
-    <span style="font-size:14px;">Version Info: Current: {{App.currentController.version}} Latest: {{App.currentController.versionServer}}</span>
+    <span style="font-size:14px;">Current Build: {{App.applicationController.version}} Latest: {{App.applicationController.versionServer}}</span>
     </div>
     {{/if}}
-
-    <div id="remoteTimeDiv" class="remoteTimeDiv" style="font-weight:bold;">
-        Remote Time: {{App.currentController.remoteTime}}
+    
+     <div id="remoteTimeDiv" class="remoteTimeDiv" style="font-weight:bold;">
+        Remote Time: {{App.applicationController.remoteTime}}
     </div>
    
   <div id="clockinfo" style="display:block;">
     <div style="margin-left:5px;font-size:14px;">
-        <span style="font-size:14px;">Remote Time Zone: <span id="remoteTimeZone">{{App.currentController.remoteTimeZone}}</span></span>
+        <span style="font-size:14px;">Remote Time Zone: <span id="remoteTimeZone">{{unbound App.applicationController.remoteTimeZone}}</span></span>
     </div>
 
     <div class="localTimeDiv" style="font-weight:bold;">
         Local Time: <span id="localTime">00:00:00</span>
     </div>
     
-    <div style="margin-left:5px;font-size:14px;">Local Time Zone: <span id="localTimeZone">{{App.currentController.localTimeZone}}</span></div>
+    <div style="margin-left:5px;font-size:14px;">Local Time Zone: <span id="localTimeZone">{{unbound App.applicationController.localTimeZone}}</span></div>
     
     
     <div class="diffTimeDiv" style="">
-    <span style="font-size:14px;">Time Difference: {{App.currentController.timeZoneDiffHours}} hours</span>
+    <span style="font-size:14px;">Time Difference: {{unbound App.applicationController.timeZoneDiffHours}} hours</span>
     </div>
   </div>
     <div style="margin-bottom:5px;"></div>
     
-    {{#if currentDisconnected}}
+    
+    
+    <div class="section" style="margin-bottom:5px;">Current Services
+        <span id="current-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
+    </div>
+    
+    
+     {{#if App.applicationController.currentDisconnected}}
         {{view App.currentDisconnectedView}}
     {{/if}}
     
-    {{#if currentEmpty}}
+    {{#if view.currentEmpty}}
         {{view App.currentOkView}}
     {{/if}}
     
-    {{#each App.currentController.current}}
-        {{view App.currentItemView contentBinding="App.currentController"}} 
+    {{#each App.applicationController.current}}
+        {{view App.currentItemView contentBinding="App.applicationController"}} 
     {{/each}}
     
+
+ 
+ 
+    
+    
     <div id="barAreaCurrent"></div>
+
+   
+    
+   
 
     <div class="section" style="margin-bottom:5px;">ACKed Services
         <span id="acked-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
     </div>
     
-    {{#if ackedEmpty}}
+    {{#if view.ackedEmpty}}
         {{view App.ackedOkView}}   
     {{/if}}
     
-    {{#each App.currentController.acked}}
-        {{view App.ackedItemView contentBinding="App.currentController"}} 
+    {{#each App.applicationController.acked}}
+        {{view App.ackedItemView contentBinding="App.applicationController"}} 
     {{/each}}
     
     
@@ -128,7 +151,7 @@
         <span id="notifications-spinner" style="display:none;"><img src="images/ajax-loader.gif" alt="ajax-loader" /></span>
     </div>
 
-    {{#unless App.currentController.history}}
+    {{#unless App.applicationController.history}}
     
     <div class="nagalert graybg">
         <div style="text-align:center;font-size:18px;margin-bottom:5px;">No History</div>            
@@ -136,20 +159,20 @@
     
     {{/unless}}
     
-    {{#each App.currentController.history}}
+    {{#each App.applicationController.history}}
     
-        {{view App.historyItemView contentBinding="App.currentController"}} 
+        {{view App.historyItemView contentBinding="App.applicationController"}} 
     
     {{/each}}
 
-    <div id="container"></div>
+    <div id="container">{{output}}</div>
         
 </script>
 
 
 <script type="text/x-handlebars" data-template-name="current-ok"> 
     <div class="nagalert graybg" style="">
-        <div style="font-size:26px;margin-bottom:5px;color:lime;"> 
+        <div style="font-size:1.5em;margin-bottom:5px;color:lime;"> 
             All services are UP
         </div>            
     </div>
@@ -157,15 +180,15 @@
 
 <script type="text/x-handlebars" data-template-name="acked-ok"> 
     <div class="nagalert graybg" style="">
-        <div style="font-size:26px;margin-bottom:5px;color:lime;"> 
+        <div style="font-size:1.5em;margin-bottom:5px;color:lime;"> 
             No ACKed services
         </div>            
     </div>
 </script>
 
 <script type="text/x-handlebars" data-template-name="current-disconnected"> 
-    <div class="nagalert graybg" style="">
-        <div id="disconnected" style="font-size:26px;margin-bottom:5px;color:brown;"> 
+    <div class="nagalert graybg">
+        <div style="font-size:1.5em;margin-bottom:5px;color:brown;"> 
             Disconnected From Server
         </div>            
     </div>
@@ -178,17 +201,17 @@
 <script type="text/x-handlebars" data-template-name="history-item">  
 
     {{#if view.firstTimespan}}
-    <div class="largetimespan" style="float:none;margin-left:5px;margin-top:20px;margin-bottom:20px;">
+    <div class="largetimespan" style="float:none;margin-left:5px;margin-top:10px;margin-bottom:10px;">
         <div class="quiet">Quiet for <span>{{minutes_ago}}</span> minutes</div>
-        <div class="quiet" style="font-size:16px;">{{view.stringAgo}}</div>
+        <div class="quiet">{{view.stringAgo}}</div>
     </div>
     {{/if}}    
     
-    <div id="history-{{unbound notification_id}}" class="graybg nagalert" style="display:block;font-size:16px;opacity:0.5;">
+    <div id="history-{{unbound notification_id}}" class="graybg nagalert border{{unbound view.stateClass}}" style="display:block;opacity:0.5;">
         
         <div class="ago" style="">
             {{minutes_ago}}
-            <div style="font-size:9px;position:relative;top:-6px;">ago</div>
+            <div style="font-size:0.5em;position:relative;top:-1px;">min ago</div>
         </div>
         
         <div class="datetime">
@@ -215,7 +238,7 @@
 
     {{#if view.largeTimespan}}
 
-    <div class="largetimespan" style="float:none;margin-left:5px;margin-top:22px;margin-bottom:20px;">
+    <div class="largetimespan" style="float:none;margin-left:5px;margin-top:12px;margin-bottom:1px;">
         <div class="quiet">Quiet for <span>{{since}}</span> minutes</div>
     </div>
     
@@ -231,14 +254,22 @@
     
     <div id="current-{{unbound servicestatus_id}}" class="graybg nagalert critical currentitem border{{unbound view.currentStateClass}}" style="display:block;">
     
+    <div  style="float:right;font-size:1.3em;padding:3px 5px 0 0;width:50px;height:30px;text-align:right;color:#FF7256;">
+            {{view.downForMinutes}}m
+           
+        </div>
+
+
+
+
     {{status_update_time}}
     
     {{#if name2}}
-    <span class="alertname2"><a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{unbound name1}}&service={{unbound name2}}">{{name2}}</a></span>
+    <span class="alertname2"><a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{unbound name1}}&service={{unbound name2}}">{{unbound name2}}</a></span>
     {{/if}}
     on
     {{#if name1}}
-    <span class="alertname1"><a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{unbound name1}}">{{name1}}</a></span>
+    <span class="alertname1"><a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{unbound name1}}">{{unbound name1}}</a></span>
     {{/if}}
     
     <br />
@@ -247,13 +278,14 @@
     </span>
     
     
-    <div class="eventDetail" style="display:none;">
+    <div class="eventDetail" style="display:none">
     {{#if view.isSoft}}
         <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} WARN @ {{last_state_change}}</div>
         <div>{{view.stateTypeName}} WARN for {{view.downFor}}</div>
     {{else}}
-        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} DOWN @ {{last_state_change}}</div>
         <div>{{view.stateTypeName}} DOWN for {{view.downFor}}</div>
+        <div style="" {{bindAttr class="stateClass"}}>{{view.stateTypeName}} DOWN @ {{last_state_change}}</div>
+        
     {{/if}}
       <div>NEXT CHECK @ {{next_check}}</div>
     </div>
@@ -320,24 +352,19 @@
     </div>
 </script>
 
-
-
-<div class="row-fluid">
+<div class="row-fluid" style="font-size:90%;">
     <div class="span12 padme" id="col1" style="">
     </div>
 </div>
 
 <div id="container"></div>
 
-<div id="main">
-
-    <div id="jquery-test" class="graybg nagalert" style="text-align:center;width:300px;margin-right:auto;margin-left:auto;padding:10px;">
-        <div style="font-size:24px;">NagiosTV</div>
-        <div style="font-size:18px;">by Christopher Carey</div>
-        <div style="font-size:14px;">http://chriscarey.com</div>
-        
-    </div>
-    
+<div class="welcome outer">
+	<div class="inner graybg nagalert">
+		<div>NagiosTV</div>
+		<div>by Chris Carey</div>
+		<div>http://chriscarey.com</div>
+	</div>
 </div>
 
 <div id="audio"></div>
@@ -352,9 +379,10 @@ ENV = {
 
 
 </script>
-<script type="text/javascript" src="lib/jquery-1.7.2.js"></script>
-<script type="text/javascript" src="lib/ember-0.9.8.1.js"></script>
-<script type="text/javascript" src="lib/piecon.min.js"></script>
+<script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="lib/handlebars.js"></script>
+<script type="text/javascript" src="lib/ember-1.0.0-rc.1.js"></script>
+
 <script type="text/javascript" src="lib/jstz.min.js"></script>
 <script type="text/javascript" src="lib/date.js"></script>
 <script type="text/javascript" src="lib/time.js"></script>
