@@ -53,10 +53,10 @@
 
 
 <script type="text/x-handlebars" data-template-name="bar-chart"> 
-<div class="wait graybg" style="margin-top:20px;opacity:1;">
-    <div style="position:absolute;left:4px;font-size:14px;margin-bottom:5px;color:#999;">Refresh every 10 seconds</div>
+<div class="wait graybg" style="opacity:1;">
+    <div style="position:absolute;left:4px;font-size:14px;margin-bottom:5px;color:#999;display:none;">Refresh every {{view.howManySeconds}} seconds</div>
     <div class="progress" style="margin-bottom:5px;color:#fff;">
-        <div {{bindAttr class="bgColor :bar"}} {{bindAttr style="timerWidth"}}></div>
+        <div {{bindAttr class="view.bgColor :bar"}} {{bindAttr style="view.timerWidth"}}></div>
     </div>
     
 </div>
@@ -65,14 +65,15 @@
 
 <script type="text/x-handlebars" data-template-name="main-view">
  
-		<div class="environment">
+	<div class="environment">
         <img id="config_icon" style="height:25px;width:25px;position:relative;top:-3px;" />
         {{App.applicationController.name}}
         
     </div>
-    
+
+
     {{#if App.applicationController.versionMismatch}}
-    <div class="versionMismatch" style="">
+    <div class="versionMismatch">
     <span style="font-size:14px;color:red;">Software out of date: Current Build: {{App.applicationController.version}} Latest: {{App.applicationController.versionServer}}</span><br />
     <span style="font-size:14px;color:red;">Upgrade instructions: <a href="https://github.com/chriscareycode/NagiosTV#upgrading" target="_blank">https://github.com/chriscareycode/NagiosTV#upgrading</a></span>
     </div>
@@ -111,7 +112,7 @@
     </div>
     
     
-     {{#if App.applicationController.currentDisconnected}}
+    {{#if App.applicationController.currentDisconnected}}
         {{view App.currentDisconnectedView}}
     {{/if}}
     
@@ -129,7 +130,7 @@
     
     
     <div id="barAreaCurrent"></div>
-
+    {{view App.barCurrent}}
    
     
    
@@ -254,10 +255,9 @@
     
     <div id="current-{{unbound servicestatus_id}}" class="graybg nagalert critical currentitem border{{unbound view.currentStateClass}}" style="display:block;">
     
-    <div  style="float:right;font-size:1.3em;padding:3px 5px 0 0;width:50px;height:30px;text-align:right;color:#FF7256;">
-            {{view.downForMinutes}}m
-           
-        </div>
+    <div  style="float:right;font-size:1.3em;margin:0 4px 0 0;padding:3px 5px 0 0;width:50px;height:30px;text-align:right;color:#FF7256;">
+        {{view.downForMinutes}}m
+    </div>
 
 
 
@@ -312,6 +312,9 @@
 
     <div id="acked-{{unbound servicestatus_id}}" class="graybg nagalert critical ackeditem border{{unbound view.currentStateClass}}" style="display:block;">
     
+    <div  style="float:right;font-size:1.3em;margin:0 4px 0 0;padding:3px 5px 0 0;width:50px;height:30px;text-align:right;color:#FF7256;">
+        {{view.downForMinutes}}m
+    </div>
     
     {{status_update_time}}
     

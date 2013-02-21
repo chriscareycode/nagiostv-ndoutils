@@ -2,7 +2,7 @@
  * 
  * Nagios TV Monitor
  * by Christopher P Carey - Dec 09 2010
- * Last Modified - Feb 18 2013
+ * Last Modified - Feb 20 2013
  * 
  * Update for EmberJS 1.0.0 RC
  *
@@ -178,7 +178,9 @@ function ember_setup_controllers() {
 				success: function(data){
 
 					that.set('currentDisconnected', false);
+
 					$('#current-spinner').fadeOut('slow');
+
 					if (data) {
 						var metadata = data[0];
 						var resultdata = data[1]["result"];
@@ -217,7 +219,7 @@ function ember_setup_controllers() {
 						// set the found bit on each item to 0. we will check for this bit later
 						// to compare the existing list of items against the one the server sends down
 						for(var j=0;j<current.length;j++) {
-						current[j].set('found', 0);
+							current[j].set('found', 0);
 						}
 
 
@@ -228,30 +230,29 @@ function ember_setup_controllers() {
 						// loop through the returned data and take a look at what we've got
 						for(var i=0;i<resultdata.length;i++) {
 
-						// search for a existing record
-						found = false;
-						newRes = resultdata[i];
+							// search for a existing record
+							found = false;
+							newRes = resultdata[i];
 
-						for(var j=0;j<current.length;j++) {
-							cachedRes = current[j];
-							if (cachedRes.servicestatus_id === newRes.servicestatus_id) {
+							for(var j=0;j<current.length;j++) {
+								cachedRes = current[j];
+								if (cachedRes.servicestatus_id === newRes.servicestatus_id) {
 									cachedRes.set('state_type', newRes.state_type);
 									cachedRes.set('current_state', newRes.current_state);
 									cachedRes.set('next_check', newRes.next_check);
 									cachedRes.set('output', newRes.output);
 									cachedRes.set('found', 1);
 									found = true;
+								}
+							}                
+							if (!found) {
+								// item was returned and it was not found. lets add it into the array of items
+								//App.log('updateCurrent() new item');
+								//App.log(resultdata[i]);
+								
+								// add this new item into the current array
+								current.pushObject( App.Item.create(newRes) );
 							}
-						}                
-						if (!found) {
-							// item was returned and it was not found. lets add it into the array of items
-							//App.log('updateCurrent() new item');
-							//App.log(resultdata[i]);
-							
-							// add this new item into the current array
-							current.pushObject( App.Item.create(newRes) );
-
-						}
 						}
 
 						// If the server returns nothing, lets clear the items out all at once. 
@@ -278,19 +279,19 @@ function ember_setup_controllers() {
 							//App.log('updateCurrent() Searching for found=0. current length is '+current.length+'. index '+j+' - found:'+current[j].get('found'));
 
 							if (current[j].get('found') === 0) {
-									//App.log('updateCurrent() Erasing index '+j+ ' current length is '+current.length);
-									_removeAndAnimate(j);
+								//App.log('updateCurrent() Erasing index '+j+ ' current length is '+current.length);
+								_removeAndAnimate(j);
 							} else {
-									//App.log('updateCurrent() Item found at index '+j+'. Nothing to erase from current.');
+								//App.log('updateCurrent() Item found at index '+j+'. Nothing to erase from current.');
 							}
 						}
 					}
 
-					// set the new current array back into the controller
-					that.set('current', current);
+						// set the new current array back into the controller
+						that.set('current', current);
 
-					// Kick off the countdown again (which runs the bar chart and/or any other animations)        
-					that.startCountdown(App.mainView);
+						// Kick off the countdown again (which runs the bar chart and/or any other animations)        
+						that.startCountdown(App.mainView);
 					}
 
 					// private helper function
@@ -646,10 +647,8 @@ function ember_setup_controllers() {
 				
 				timerPercent:100,
 
+				
 				timerWidth: function() {
-						return "width:100%";
-				}.property("timerPercent"),
-				timerWidthDisabled: function() {
 						return "width:"+this.timerPercent+"%";
 				}.property("timerPercent"),
 
@@ -658,7 +657,8 @@ function ember_setup_controllers() {
 				
 						this.set('name', 'Nagios');
 						if (config_servername) {
-								this.set('name', config_servername);
+								//this.set('name', config_servername);
+								App.applicationController.set('name', config_servername);
 						}
 						
 						
@@ -693,34 +693,61 @@ function ember_setup_controllers() {
 
 		App.mainView.appendTo('#col1');
 		
-		/*
+		
 		App.BarCurrent = Ember.View.extend({
 				
 				templateName: 'bar-chart',
-				name: "Nagios Debian",
-				totalGateways: -1,
+
 				
 				timerPercent:100,
+				
 				timerWidth: function() {
-						return "width:100%";
-				}.property("App.mainView.timerPercent"),
-				timerWidthDisabled: function() {
 						return "width:"+App.mainView.get('timerPercent')+"%";
+						//return "width:50%";
 				}.property("App.mainView.timerPercent"),
 				
 				bgColor: function() {
 				
-						return "bggray";
-						//return "bggreen";
-						//return "bgyellow";
-						//return "bgred";
+					var found_crit = false;
+					var found_warn = false;
+					var current = App.applicationController.get('current');
+
+
+					// find out if there are any criticals
+					for(var j=0;j<current.length;j++) {
+						App.log(current[j].get('current_state'));
+						if (current[j].get('current_state') == 2) found_crit = true;
+					}
+					// find out if there are any warnings
+					for(var j=0;j<current.length;j++) {
+						if (current[j].get('current_state') == 1) found_warn = true;
+					}
+
+					if (found_crit) {
+						return "bgred";
+					} else if (found_warn) {
+						return "bgyellow";
+					} else {
+						return "bggreen";
+						//return "bggray";
+					}
 						
-				}.property("App.applicationController.current")
+					
+						
+						
+						
+				}.property("App.applicationController.current.length"),
+
+				howManySeconds: function() {
+						return "width:"+App.applicationController.get('refreshCurrent');
+				}.property("App.applicationController.refreshCurrent")
+
+
 		});
 		App.barCurrent = App.BarCurrent.create();
 		
-		App.barCurrent.appendTo('#barAreaCurrent');
-		*/
+		//App.barCurrent.appendTo('#barAreaCurrent');
+		
 			 
 		App.currentOkView = Ember.View.extend({
 			 tagName: 'div',
@@ -813,7 +840,7 @@ function ember_setup_controllers() {
 						}
 						var state = content.state;
 						
-						App.log('currentItemView() stateClass() current_state '+state);
+						//App.log('currentItemView() stateClass() current_state '+state);
 						
 						if (state === "1") {
 								return "state1";
