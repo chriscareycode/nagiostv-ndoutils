@@ -1129,6 +1129,28 @@ function ember_setup_controllers() {
 						
 				}.property('this._context.state_type'),
 				
+				downForMinutes: function() {
+				
+						var content = this._context;
+						if (typeof(content) == "undefined") {
+							return false;
+						}
+
+						
+
+						var last_state_change = new Date(Date.parse(content.last_state_change));
+						var diff = new Date() - last_state_change;
+						var numminutes = Math.floor(diff / 86400);
+						
+						/*console.info('downForMinutes');
+						console.dir (new Date());
+						console.dir (last_state_change);
+						console.dir (diff);
+						console.dir (numminutes);
+*/
+						return numminutes;
+						
+				}.property('App.applicationController.remoteTimeObject'),
 								
 				didInsertElement: function() {
 						
