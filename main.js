@@ -1204,7 +1204,6 @@ $(document).ready(function(){
 	App.applicationController.updateHistory();
 	App.applicationController.set('timerHistory', setInterval("App.applicationController.updateHistory()", App.applicationController.get('refreshNotification') * 1000));
 
-	
 	setInterval("updateTime()", 5*1000); // Update clock every 5s
 
 });
