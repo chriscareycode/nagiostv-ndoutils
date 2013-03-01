@@ -586,7 +586,7 @@ function ember_setup_controllers() {
 						
 								// subtract start_time from current time
 								var date1 = new Date(Date.parse(history[h].start_time));
-								date1.addHours(-diffhours);
+								//date1.addHours(-diffhours);
 								
 								var diff = date2.getTime() - date1.getTime();
 								var diff = date2 - date1;
