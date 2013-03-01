@@ -222,13 +222,13 @@
         {{view.stringAgo}} ago<br />
         
         {{#if name2}}
-        <span class="alertname2"><a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{name1}}&service={{name2}}">{{name2}}</a></span>
+        <span class="alertname2"><a target="_blank" href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{name1}}&service={{name2}}">{{name2}}</a></span>
         {{/if}}
         
         on
         
         {{#if name1}}
-        <span class="alertname1"><a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{name1}}">{{name1}}</a></span>
+        <span class="alertname1"><a target="_blank" href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{name1}}">{{name1}}</a></span>
         {{/if}}
         
         <div class="state{{unbound state}}">{{output}}</div>
@@ -265,11 +265,11 @@
     {{status_update_time}}
     
     {{#if name2}}
-    <span class="alertname2"><a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{unbound name1}}&service={{unbound name2}}">{{unbound name2}}</a></span>
+    <span class="alertname2"><a target="_blank" href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{unbound name1}}&service={{unbound name2}}">{{unbound name2}}</a></span>
     {{/if}}
     on
     {{#if name1}}
-    <span class="alertname1"><a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{unbound name1}}">{{unbound name1}}</a></span>
+    <span class="alertname1"><a target="_blank" href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{unbound name1}}">{{unbound name1}}</a></span>
     {{/if}}
     
     <br />
@@ -319,11 +319,11 @@
     {{status_update_time}}
     
     {{#if name2}}
-    <span class="alertname2"><a href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{unbound name1}}&service={{unbound name2}}">{{name2}}</a></span>
+    <span class="alertname2"><a target="_blank" href="/cgi-bin/nagios3/extinfo.cgi?type=2&host={{unbound name1}}&service={{unbound name2}}">{{name2}}</a></span>
     {{/if}}
     on
     {{#if name1}}
-    <span class="alertname1"><a href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{unbound name1}}">{{name1}}</a></span>
+    <span class="alertname1"><a target="_blank" href="/cgi-bin/nagios3/extinfo.cgi?type=1&host={{unbound name1}}">{{name1}}</a></span>
     {{/if}}
     
     <br />
