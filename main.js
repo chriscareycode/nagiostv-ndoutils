@@ -89,6 +89,8 @@ function ember_setup_controllers() {
 				App.log('versionCheck() Disabled');
 				return;
 			}
+
+			App.log('versionCheck() Starting');
 			
 			$.ajax({
 				type: "POST",
