@@ -201,8 +201,8 @@ function ember_setup_controllers() {
 							that.set('remoteTime', remotetime.toString());
 
 							// difference time
-							//var diff = remotetime.getHours() - localdate.getHours();
-							//that.set('timeZoneDiffHours', diff);
+							var diff = remotetime.getHours() - localdate.getHours();
+							that.set('timeZoneDiffHours', diff);
 
 							// calculate difference hours with datejs TimeSpan
 							var span = localdate.getTimezoneOffset() - remotetime.getTimezoneOffset();
