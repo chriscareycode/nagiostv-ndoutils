@@ -58,8 +58,7 @@ Your customized config files (config.js, config.php) will not be overwritten.
   
 If you are having problems, backup your NagiosTV folder, or move it.
   Then run through Installation above, and copy your old
-  config.js and config.php into the new NagiosTV folder. Make sure to compare
-  your configs against the config.dist.php and config.dist.js files also.
+  config.js and config.php into the new NagiosTV folder.
 
 How to show multiple Nagios on one TV
 ------------
