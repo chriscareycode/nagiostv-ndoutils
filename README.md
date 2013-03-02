@@ -9,7 +9,6 @@ Hosts and services are clickable to jump to the Nagios web interface
 - Client Side: HTML5, Javascript, jQuery, EmberJS, Twitter Bootstrap
 - Server Side: PHP, MySQL
 - Data transfer: AJAX, JSON
-- Piecon https://github.com/lipka/piecon
 
 Screenshot of 5 Nagios servers on one TV (5-in-1)
 ------------
@@ -22,10 +21,7 @@ Requirements
 
 Packages needed by api.php:
 
-php5
-php5-mysql
-php5-curl
-libapache2-mod-php5
+apt-get install php5 php5-mysql php5-curl libapache2-mod-php5
 
 This project is built upon Nagios ndoutils.
 NDOUtils allows you to export current and historical data from one or more Nagios instances to a MySQL database.
