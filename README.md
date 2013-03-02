@@ -51,12 +51,15 @@ Upgrading
 ------------
 - $ cd NagiosTV
 - $ git pull
-- Your customized config files (config.js, config.php) will not be overwritten.
+
+Your customized config files (config.js, config.php) will not be overwritten.
   You may want to check config.php.dist and config.js.dist for new options
-  until I get around to automating that process
-- If you are having problems, backup your NagiosTV folder, or move it.
+  until I get around to automating that process.
+  
+If you are having problems, backup your NagiosTV folder, or move it.
   Then run through Installation above, and copy your old
-  config.js and config.php into the new NagiosTV folder
+  config.js and config.php into the new NagiosTV folder. Make sure to compare
+  your configs against the config.dist.php and config.dist.js files also.
 
 How to show multiple Nagios on one TV
 ------------
@@ -66,7 +69,6 @@ TODO
 ------------
 Features to work on next:
 
-- Fix the ACKed section
 - a config.php page which checks prerequisites on the server side and communicates that down to the client if there is a problem.
 - Improve version number
 - Intelligent auto-updater?
