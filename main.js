@@ -31,7 +31,7 @@ function ember_setup() {
 	};
 	
 	// Set up Ember Routing
-	
+	/*
 	App.Router.map(function() {
 		this.route("about", { path: "/about" });
 		this.route("detail", { path: "/detail" });
@@ -43,7 +43,7 @@ function ember_setup() {
 			controller.set('title', "My App");
 		}
 	});
-	
+	*/
 	
 }
 
