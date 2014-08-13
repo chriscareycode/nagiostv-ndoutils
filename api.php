@@ -85,7 +85,7 @@
         
             $sql = "SELECT * FROM nagios_servicestatus s INNER JOIN nagios_objects o ON s.service_object_id=o.object_id ";
             $sql .= "WHERE current_state <> 0 AND ";
-                $sql .= "(problem_has_been_acknowledged = 0 AND notifications_enabled = 1) ";
+                $sql .= "(problem_has_been_acknowledged = 0 AND notifications_enabled = 1 AND active_checks_enabled =1) ";
                 //if (is_numeric($lastid)) $sql .= "AND (servicestatus_id > ".$lastid.") ";
             $sql .= "ORDER BY problem_has_been_acknowledged, notifications_enabled DESC, status_update_time DESC ";
             $sql .= "LIMIT 500;";
