@@ -33,8 +33,8 @@ NDOUtils allows you to export current and historical data from one or more Nagio
 Installation
 ------------
 
-- git clone git://github.com/chriscareycode/NagiosTV.git
-- $ cd NagiosTV
+- git clone https://github.com/chriscareycode/nagiostv-ndoutils.git
+- $ cd nagiostv-ndoutils
 - copy config.php.dist to config.php. This is the server-side configuration file
 - copy config.js.dist to config.js. This is the client-side configuration file
 - edit config.php and set the values 
