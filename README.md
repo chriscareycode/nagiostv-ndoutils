@@ -1,4 +1,4 @@
-NagiosTV (ndoutils Nagios 3 version)
+NagiosTV (for Nagios 3) ndoutils edition
 ------------
 
 ```diff
