@@ -2,9 +2,9 @@ NagiosTV
 ------------
 
 ```diff
-- There is a new project NagiosTV 4 which is now getting updates.
+- There is a new project for NagiosTV which is now getting updates.
 - If you are running Nagios 4.0.7 or newer, I suggest you check out
-- the NagiosTV 4 project over at https://github.com/chriscareycode/nagiostv-4
+- the NagiosTV project over at https://github.com/chriscareycode/nagiostv-react
 ```
 
 Watch one or more Nagios servers on a wall mounted TV (or your desktop)
