@@ -6,6 +6,7 @@ NagiosTV (for Nagios 3) ndoutils edition
 - If you are running Nagios 4.0.7 or newer, I suggest you check out
 - the NagiosTV project over at https://github.com/chriscareycode/nagiostv-react
 ```
+https://github.com/chriscareycode/nagiostv-react
 
 Watch one or more Nagios servers on a wall mounted TV (or your desktop)
 
