@@ -7,7 +7,10 @@ NagiosTV (for Nagios 3) ndoutils edition
 - the NagiosTV project over at https://github.com/chriscareycode/nagiostv-react
 ```
 
+Check out the new NagiosTV project here:
 https://github.com/chriscareycode/nagiostv-react
+
+## Introduction
 
 Watch one or more Nagios servers on a wall mounted TV (or your desktop)
 
