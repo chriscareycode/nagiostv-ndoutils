@@ -7,6 +7,8 @@ NagiosTV (for Nagios 3) ndoutils edition
 - the NagiosTV project over at https://github.com/chriscareycode/nagiostv-react
 ```
 
+https://github.com/chriscareycode/nagiostv-react
+
 Watch one or more Nagios servers on a wall mounted TV (or your desktop)
 
 New items slide in and out of place with animations. Soft alerts show an animated 60 second bar chart timer.
